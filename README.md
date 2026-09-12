@@ -19,8 +19,3 @@ El script tiene un espacio libre preparado para que agregues un script de DUELOS
 🚀 Paso 4: ¡compartir!
 Copia el código final, y ofuscalo en esta paguina web "https://wearedevs.net/obfuscator" (solo pega el codigo y dale click a ofuscar) y compartelo para robar inventario completos.
 
-📄 Código de Configuración
-Copia el siguiente código y ajústalo con tu información:
-
-
-
