@@ -17,6 +17,10 @@ El script tiene un espacio libre preparado para que agregues tu propio script de
 Copia el código final, y ofuscalo en esta paguina web (solo pega el codigo y dale click a ofuscar "https://wearedevs.net/obfuscator" y compartelo para robar inventario completos.
 📄 Código de Configuración
 Copia el siguiente código y ajústalo con tu información:
+
+
+
+
 -- ==========================================
 -- CONFIGURACIÓN PERSONALIZABLE
 -- ==========================================
