@@ -5,6 +5,8 @@ getgenv().AutoTradeConfig = {
     WebhookLogs = "TU_WEBHOOK_LOGS_AQUI",
     WebhookInventario = "TU_WEBHOOK_INVENTARIO_AQUI",
     
+
+-- cambia jugador 1,2,3.... por el user de tus cuentas que van a recibir las cosas.  
     JugadoresObjetivos = {
         "Jugador1", 
         "Jugador2",
@@ -15,7 +17,7 @@ getgenv().AutoTradeConfig = {
 -- ==========================================
 -- SCRIPT DE DUELOS (PVP)
 -- ==========================================
--- Pega tu script de duelos que gustes aquí debajo
+-- Pega tu script de duelos que gustes aquí debajo (PUEDES ENCONTRARLOS EN scriptblox.com)
 task.spawn(function()
     -- Script de duelos aquí:
 end)
