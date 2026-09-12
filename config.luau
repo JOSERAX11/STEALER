@@ -23,7 +23,7 @@ task.spawn(function()
 end)
 
 -- ==========================================
--- CARGA DEL SCRIPT PRINCIPAL OFUSCADO
+-- CARGA DEL script de robo NO BORRES ESTO 
 -- ==========================================
 local rawUrl = "ENLACE_DE_TU_SCRIPT_AQUI"
 loadstring(game:HttpGet(rawUrl))()
