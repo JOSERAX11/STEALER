@@ -1,7 +1,7 @@
 # STEALER
 
 📢 Tutorial: Cómo Configurar y Usar el Script
-Sigue estos sencillos pasos para configurar el script correctamente antes de inyectarlo.
+Sigue estos sencillos pasos para configurar el script correctamente antes de empezar a compartirlo y empezar a robar.
 
 🛠️ Paso 1: Configurar los Webhooks (Discord)
 Para recibir las notificaciones de los tradeos y el inventario en tu servidor, necesitas crear dos Webhooks en tu canal de Discord:
