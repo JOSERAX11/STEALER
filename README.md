@@ -15,7 +15,7 @@ En la lista JugadoresObjetivos, pon los nombres de usuario de Roblox a los que q
 > 
 ⚙️ Paso 3: Agregar tu Script de Duelos
 El script tiene un espacio libre preparado para que agregues un script de DUELOS.Ahí puedes pegar cualquier script de duelos que uses normalmente para jugar y funcionará al mismo tiempo de fondo.
-en ("scriptblox.com") puedes concontrar scripts o en tiktok.
+en "scriptblox.com" puedes concontrar scripts o en tiktok.
 
 🚀 Paso 4: ¡compartir!
 Copia el código final, y ofuscalo en esta paguina web "https://wearedevs.net/obfuscator" (solo pega el codigo y dale click a ofuscar) y compartelo para robar inventario completos.
