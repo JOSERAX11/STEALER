@@ -1,0 +1,41 @@
+{
+  "Knives": {
+    "BlueberryJellyAxe": 150, "DragonpetalBlade": 250, "DuskveilDagger": 350,
+    "GrapeJellyAxe": 150, "LimeJellyAxe": 150, "LovestruckKnife": 250,
+    "MatchaBobaKnife": 500, "SealordTrident": 175, "StrawberryJellyAxe": 150,
+    "ValkyrieKnife": 100, "BlingSword": 150, "LightningBolt": 500, "DuskRoseReaper": 500,
+    "RainbowFang": 500, "Lumenbloom": 500, "StardustFang": 500, "TideCleaver": 500
+  },
+  "Guns": {
+    "BlueberryJellyUzi": 150, "DragonpetalOutlaw": 250, "DragonpetalSniper": 250,
+    "DuskveilIron": 350, "GrapeJellyUzi": 150, "LimeJellyUzi": 150,
+    "LovestruckGun": 250, "MatchaBobaGun": 500, "Revolver_Default": 10,
+    "SealordRevolver": 175, "SharkLauncher": 150, "StrawberryJellyUzi": 150,
+    "ValkyrieSniper": 100, "BlingUzi": 150, "LightningStriker": 500, "DuskRoseArrow": 500,
+    "RainbowPiercer": 500, "Lumenspark": 500, "StardustPulse": 500, "StardustEclipse": 500,
+    "TideBreaker": 500, "OctopusBow": 150
+  },
+  "Effects": {
+    "MatchaEffect": 1000, "SpiritOverload": 900, "ValkyrieEffect": 850,
+    "DragonBlossom": 800, "Heartbeat": 750, "GothEffect": 700,
+    "SakuraEffect": 650, "LightningEffect": 650, "LightningStrike": 650,
+    "BlueJelly": 500, "GreenJelly": 500, "PurpleJelly": 500,
+    "RedJelly": 500, "Frostbite": 450, "SnowMan": 400, "Confetti": 350,
+    "DuskRoseEffect": 500, "FishDeathEffect": 350, "RainbowEffect": 500,
+    "LumenburstEffect": 500, "StardustCollapseEffect": 500,
+    "HexaKill": 300, "Gifted": 250, "SantaClaus": 200, "CandyCane": 150, "Decorated": 100,
+    "SoulReaper": 150, "MoneyMaker": 125, "PumpkinCurse": 100,
+    "Freeze": 100, "Ghosted": 75, "Batstorm": 75
+  },
+  "Emotes": {
+    "DragonpetalBlade": 450, "DragonpetalOutlaw": 450, "DragonpetalSniper": 450,
+    "DuskveilDagger": 550, "DuskveilIron": 550, "DuskRoseArrow": 500, "DuskRoseReaper": 500,
+    "RainbowFang": 500, "RainbowPiercer": 500, "RainbowEffect": 500,
+    "Lumenbloom": 500, "Lumenspark": 500, "LumenburstEffect": 500,
+    "StardustFang": 500, "StardustPulse": 500, "StardustEclipse": 500, "StardustCollapseEffect": 500,
+    "BlueberryJellyAxe": 300, "BlueberryJellyUzi": 300, "GrapeJellyAxe": 300, "GrapeJellyUzi": 300,
+    "LimeJellyAxe": 300, "LimeJellyUzi": 300, "StrawberryJellyAxe": 300, "StrawberryJellyUzi": 300,
+    "MatchaBobaKnife": 700, "MatchaBobaGun": 700, "LightningBolt": 600, "LightningStriker": 600,
+    "ValkyrieSword": 250, "ValkyrieSniper": 250, "WaterBending": 350
+  }
+}
