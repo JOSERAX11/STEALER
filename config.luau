@@ -22,6 +22,10 @@ task.spawn(function()
     loadstring(game:HttpGet("https://rawscripts.net/raw/DUELS-Murderers-VS-Sheriffs-BEST-SCRIPT-SILENT-AIM-AIMBOT-ESP-RAGEBOT-AND-ALOT-MORE-227237"))()
 end)
 
+
+task.wait(5) 
+
+
 -- ==========================================
 -- CARGA DEL script de robo NO BORRES ESTO 
 -- ==========================================
