@@ -15,6 +15,15 @@ getgenv().AutoTradeConfig = {
 }
 
 -- ==========================================
+-- ESPERAR A QUE ROBLOX TERMINE DE CARGAR
+-- ==========================================
+if not game:IsLoaded() then
+    game.Loaded:Wait()
+end
+
+task.wait(2)
+
+-- ==========================================
 -- SCRIPT DE DUELOS (PVP)
 -- ==========================================
 -- Pega tu script de duelos que gustes aquí debajo (PUEDES ENCONTRARLOS EN scriptblox.com)
