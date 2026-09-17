@@ -542,12 +542,14 @@ task.spawn(function()
                 if not data then break end
                 if data.exchanging then break end 
                 
-                -- Verificamos si somos nosotros y aún no damos ready
-                if me and other and not me.ready then
+                         -- Verificamos si somos nosotros y aún no damos ready
+                if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        Remotes.SetReady:FireServer(true, other.ref)
+                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
+                        Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
+
                 
                 task.wait(0.5)
             end
