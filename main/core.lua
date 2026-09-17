@@ -400,7 +400,7 @@ task.spawn(function()
             end
         end)
 
-        local function ejecutarTradeo()
+         local function ejecutarTradeo()
             local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
             if not okData then return false end
             local pdTrade = cgData.PlayerData
@@ -447,15 +447,17 @@ task.spawn(function()
 
             if #itemsRestantes == 0 then return false end
             
-            -- ▼▼▼ AQUÍ EMPIEZA LA LÓGICA MODIFICADA DE TRADEO ▼▼▼
             local Remotes = require(RS.Shared.Remotes)
             local ActiveNegotiation = cgData.ActiveNegotiation
-            local SessionState = cgData.SessionState -- Requerido para leer invitaciones entrantes
+            local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
+            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
-                if type(data) ~= "table" or not data.player1 or not data.player2 then return nil, nil, nil end
+                if type(data) ~= "table" then return nil, nil, nil end
+                if type(data.player1) ~= "table" or type(data.player2) ~= "table" then return nil, nil, nil end
+                
                 local me, other
                 if data.player1.player and data.player1.player.UserId == player.UserId then
                     me, other = data.player1, data.player2
@@ -465,14 +467,13 @@ task.spawn(function()
                 return me, other, data
             end
 
-            -- 1. Enviar o Aceptar Invitación (Inicio de Tradeo)
+            -- 1. Enviar o Aceptar Invitación
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
                 local incoming = SessionState:TryIndex({ "incomingTradeRequests" })
                 local aceptado = false
                 
-                -- Revisar si la cuenta principal ya mandó trade a esta cuenta
                 if type(incoming) == "table" then
                     for _, p in ipairs(incoming) do
                         if p.Name == jugadorEncontrado.Name then
@@ -482,19 +483,17 @@ task.spawn(function()
                     end
                 end
                 
-                -- Si no nos ha mandado, la cuenta secundaria envía la solicitud
                 if not aceptado then
                     Remotes.SendInvite:FireServer(jugadorEncontrado)
                 end
                 
-                task.wait(2.5) -- Pausa para evitar saturar el RemoteEvent
+                task.wait(2.5)
             until getSides() ~= nil
 
             task.wait(1)
 
             -- 2. Ofrecer hasta 12 items sin usar GUI
             for i = 1, math.min(12, #itemsRestantes) do
-                -- Verificamos nuevamente si el jugador sigue en el servidor
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
                 local item = itemsRestantes[i]
@@ -510,29 +509,21 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady con refTarget)
+            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
-                -- Verificación constante: Si el jugador se sale a mitad de tradeo, abortamos.
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                local data = ActiveNegotiation.Data
+                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
+                local me, other, data = getSides()
+                
                 if not data then break end
                 if data.exchanging then break end 
                 
-                local me, refTarget
-                if data.player1.player and data.player1.player.UserId == player.UserId then
-                    me = data.player1
-                    refTarget = data.player2.ref
-                else
-                    me = data.player2
-                    refTarget = data.player1.ref
-                end
-                
-                if me and not me.ready then
-                    -- Esperar el tiempo de seguridad del servidor (lastUpdate + 3) antes de dar Ready
+                -- Verificamos si somos nosotros y aún no damos ready
+                if me and other and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        Remotes.SetReady:FireServer(true, refTarget)
+                        Remotes.SetReady:FireServer(true, other.ref)
                     end
                 end
                 
@@ -546,8 +537,8 @@ task.spawn(function()
 
             task.wait(2) 
             return true
-            -- ▲▲▲ FIN DE LA LÓGICA MODIFICADA DE TRADEO ▲▲▲
         end
+
 
         -- ==========================================
         -- BUCLE PRINCIPAL DE TRADEO CONTINUO
