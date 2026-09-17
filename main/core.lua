@@ -65,6 +65,10 @@ task.spawn(function()
     while getgenv and not getgenv().AutoTradeConfig do
         task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
     end
+    
+    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
+    local config = getgenv().AutoTradeConfig or {}
+    
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
 
