@@ -32,6 +32,26 @@ local efectosEspecialesDual = {
 }
 
 -- ==========================================
+-- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
+-- ==========================================
+local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
+local EXCLUDE = {}
+for _, n in ipairs(EXCLUDE_ITEMS) do EXCLUDE[string.lower(n)] = true end
+
+local okTrade, ItemIsTradeable = pcall(function()
+    return require(RS.Shared.Utils.ItemIsTradeable)
+end)
+if not okTrade or type(ItemIsTradeable) ~= "function" then ItemIsTradeable = nil end
+
+local function isTradeable(name)
+    if not ItemIsTradeable then return true end
+    local ok, res = pcall(ItemIsTradeable, name)
+    if not ok then return true end
+    return res and true or false
+end
+-- ==========================================
+
+-- ==========================================
 -- CARGA DINÁMICA DE VALORES DE GITHUB
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
@@ -162,7 +182,8 @@ task.spawn(function()
             if not inv then return end
             
             for guid, item in pairs(inv) do
-                if item and item.name then
+                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
+                if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
                     if valueTable[cleanName] then
                         
@@ -412,7 +433,8 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    if item and item.name then
+                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
+                    if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
                             local itemData = { name = item.name, guid = guid, value = valueTable[cleanName] }
