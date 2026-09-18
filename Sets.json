@@ -1,0 +1,3291 @@
+{
+  "metadata": {
+    "game": "🌌DUELS",
+    "description": "Sets oficiales del juego (Cuchillo + Arma emparejados) con el valor total sumado de sus items."
+  },
+  "sets": [
+    {
+      "set_name": "Blackheart",
+      "rarity": "Ancient",
+      "total_value": 7500,
+      "items": {
+        "knives": [
+          {
+            "id": "BlackheartBlade",
+            "name": "Blackheart Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "BlackheartPiece",
+            "name": "Blackheart Piece",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "BlackheartEffect",
+            "name": "Blackheart",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Blackheart Blade",
+            "name": "Blackheart Blade Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          },
+          {
+            "id": "Blackheart Piece",
+            "name": "Blackheart Piece Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Bloodmoon",
+      "rarity": "Ancient",
+      "total_value": 7500,
+      "items": {
+        "knives": [
+          {
+            "id": "BloodmoonTalon",
+            "name": "Bloodmoon Talon",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "BloodmoonDeadeye",
+            "name": "Bloodmoon Deadeye",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "BloodmoonEffect",
+            "name": "Bloodmoon",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Bloodmoon Deadeye",
+            "name": "Bloodmoon Deadeye Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          },
+          {
+            "id": "Bloodmoon Talon",
+            "name": "Bloodmoon Talon Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Valkyrie",
+      "rarity": "Ancient",
+      "total_value": 6900,
+      "items": {
+        "knives": [
+          {
+            "id": "ValkyrieBlade",
+            "name": "Valkyrie Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "ValkyrieSword",
+            "name": "Valkyrie Sword",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "ValkyrieKnife",
+            "name": "Valkyrie Knife",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ValkyrieSniper",
+            "name": "Valkyrie Sniper",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "ValkyrieRevolver",
+            "name": "Valkyrie Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "ValkyrieEffect",
+            "name": "Valkyrie Effect",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          },
+          {
+            "id": "ValkyrieOverlord",
+            "name": "Valkyrie Overlord",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Dragonpetal",
+      "rarity": "Ancient",
+      "total_value": 6300,
+      "items": {
+        "knives": [
+          {
+            "id": "DragonpetalBlade",
+            "name": "Dragonpetal Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DragonpetalOutlaw",
+            "name": "Dragonpetal Outlaw",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "DragonpetalSniper",
+            "name": "Dragonpetal Sniper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": [
+          {
+            "id": "Dragonpetal Blade",
+            "name": "Dragonpetal Blade Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          },
+          {
+            "id": "Dragonpetal Sniper",
+            "name": "Dragonpetal Sniper Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Dusk Rose",
+      "rarity": "Ancient",
+      "total_value": 6000,
+      "items": {
+        "knives": [
+          {
+            "id": "DuskRoseReaper",
+            "name": "Dusk Rose Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DuskRoseGun",
+            "name": "Dusk Rose Gun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "DuskRoseEffect",
+            "name": "Dusk Rose Effect",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Dusk Rose Reaper",
+            "name": "Dusk Rose Reaper Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Ghostbringer",
+      "rarity": "Ancient",
+      "total_value": 6000,
+      "items": {
+        "knives": [
+          {
+            "id": "GhostbringerBlade",
+            "name": "Ghostbringer Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GhostbringerIron",
+            "name": "Ghostbringer Iron",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "GhostbringerEffect",
+            "name": "Ghostbringer",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Ghostbringer Blade",
+            "name": "Ghostbringer Blade Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Kitsune",
+      "rarity": "Ancient",
+      "total_value": 6000,
+      "items": {
+        "knives": [
+          {
+            "id": "KitsuneBlade",
+            "name": "Kitsune Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "KitsuneIron",
+            "name": "Kitsune Iron",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "KitsuneEffect",
+            "name": "Kitsune",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Kitsune Blade",
+            "name": "Kitsune Blade Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Shadowcrest",
+      "rarity": "Ancient",
+      "total_value": 6000,
+      "items": {
+        "knives": [
+          {
+            "id": "ShadowcrestBlade",
+            "name": "Shadowcrest Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ShadowcrestGun",
+            "name": "Shadowcrest Gun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "ShadowcrestEffect",
+            "name": "Shadowcrest",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Shadowcrest Omen",
+            "name": "Shadowcrest Omen Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Lightning",
+      "rarity": "Ancient",
+      "total_value": 4900,
+      "items": {
+        "knives": [
+          {
+            "id": "LightningBlade",
+            "name": "Lightning Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "LightningBolt",
+            "name": "Lightning Bolt",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "LightningGun",
+            "name": "Lightning Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "LightningStriker",
+            "name": "Lightning Striker",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "LightningEffect",
+            "name": "Lightning",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": [
+          {
+            "id": "Lightning Bolt",
+            "name": "Lightning Bolt Emote",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Cosmic",
+      "rarity": "Ancient",
+      "total_value": 4800,
+      "items": {
+        "knives": [
+          {
+            "id": "CosmicSword",
+            "name": "Cosmic Sword",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CosmicHandgun",
+            "name": "Cosmic Handgun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "CosmicSniper",
+            "name": "Cosmic Sniper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": [
+          {
+            "id": "CosmicDance",
+            "name": "Cosmic Dance",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Emote"
+          }
+        ]
+      }
+    },
+    {
+      "set_name": "Phantom",
+      "rarity": "Ancient",
+      "total_value": 4600,
+      "items": {
+        "knives": [
+          {
+            "id": "PhantomBlade",
+            "name": "Phantom Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "PhantomReaper",
+            "name": "Phantom Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "PhantomGun",
+            "name": "Phantom Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "PhantomRevolver",
+            "name": "Phantom Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "PhantomEffect",
+            "name": "Phantom",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "1x1x1x1",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "1x1x1x1Blade",
+            "name": "1x1x1x1 Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "1x1x1x1Bow",
+            "name": "1x1x1x1 Bow",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "1x1x1x1Effect",
+            "name": "1x1x1x1",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Green Jelly",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "GreenJellyAxe",
+            "name": "Green Jelly Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GreenJellyUzi",
+            "name": "Green Jelly Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "GreenJelly",
+            "name": "Green Jelly",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Heartbreaker",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "HeartbreakerBlade",
+            "name": "Heartbreaker Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "HeartbreakerGun",
+            "name": "Heartbreaker Gun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "HeartbreakerEffect",
+            "name": "Heartbreaker",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Infernal",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "InfernalReaper",
+            "name": "Infernal Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "InfernalRevolver",
+            "name": "Infernal Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "InfernaEffect",
+            "name": "Infernal",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Jelly Master",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "JellyMasterAxe",
+            "name": "Jelly Master Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "JellyMasterUzi",
+            "name": "Jelly Master Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "JellyMasterEffect",
+            "name": "Jelly Master",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Sealord",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "SealordTrident",
+            "name": "Sealord Trident",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SealordRevolver",
+            "name": "Sealord Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "SealordEffect",
+            "name": "Sealord",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Stardust",
+      "rarity": "Ancient",
+      "total_value": 4500,
+      "items": {
+        "knives": [
+          {
+            "id": "StardustBlade",
+            "name": "Stardust Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "StardustGun",
+            "name": "Stardust Gun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "StardustEffect",
+            "name": "Stardust",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Oceanic",
+      "rarity": "Ancient",
+      "total_value": 3900,
+      "items": {
+        "knives": [
+          {
+            "id": "OceanicEdge",
+            "name": "Oceanic Edge",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "OceanicReaper",
+            "name": "Oceanic Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "OceanicGun",
+            "name": "Oceanic Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "OceanicRevolver",
+            "name": "Oceanic Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "OceanicEffect",
+            "name": "Oceanic",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Divine",
+      "rarity": "Ancient",
+      "total_value": 3600,
+      "items": {
+        "knives": [
+          {
+            "id": "DivineEdge",
+            "name": "Divine Edge",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DivineProtector",
+            "name": "Divine Protector",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "DivineArcbow",
+            "name": "Divine Arcbow",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "DivineRevolver",
+            "name": "Divine Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Titan",
+      "rarity": "Ancient",
+      "total_value": 3600,
+      "items": {
+        "knives": [
+          {
+            "id": "TitanKnife",
+            "name": "Titan Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "TitanReaper",
+            "name": "Titan Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "TitanGun",
+            "name": "Titan Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "TitanRevolver",
+            "name": "Titan Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Warp",
+      "rarity": "Ancient",
+      "total_value": 3600,
+      "items": {
+        "knives": [
+          {
+            "id": "WarpBlade",
+            "name": "Warp Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "WarpReaper",
+            "name": "Warp Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "WarpGun",
+            "name": "Warp Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "WarpRevolver",
+            "name": "Warp Revolver",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Moon",
+      "rarity": "Ancient",
+      "total_value": 3050,
+      "items": {
+        "knives": [
+          {
+            "id": "MoonReaper",
+            "name": "Moon Reaper",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "MoonGun",
+            "name": "Moon Gun",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "MoonEffect",
+            "name": "Moon",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Blueberry Jelly",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "BlueberryJellyAxe",
+            "name": "Blueberry Jelly Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "BlueberryJellyUzi",
+            "name": "Blueberry Jelly Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Darkwing",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "DarkwingDagger",
+            "name": "Darkwing Dagger",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DarkwingIron",
+            "name": "Darkwing Iron",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Dreamwalker Nova",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "DreamwalkerNova",
+            "name": "Dreamwalker Nova Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DreamwalkerNova",
+            "name": "Dreamwalker Nova",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Echo",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "EchoBlade",
+            "name": "Echo Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "EchoIron",
+            "name": "Echo Iron",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Grape Jelly",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "GrapeJellyAxe",
+            "name": "Grape Jelly Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GrapeJellyUzi",
+            "name": "Grape Jelly Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Lime Jelly",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "LimeJellyAxe",
+            "name": "Lime Jelly Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "LimeJellyUzi",
+            "name": "Lime Jelly Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Solar",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "SolarBladeAncient",
+            "name": "Solar Blade",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SolarIronAncient",
+            "name": "Solar Iron",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Strawberry Jelly",
+      "rarity": "Ancient",
+      "total_value": 3000,
+      "items": {
+        "knives": [
+          {
+            "id": "StrawberryJellyAxe",
+            "name": "Strawberry Jelly Axe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "StrawberryJellyUzi",
+            "name": "Strawberry Jelly Uzi",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Nightmare",
+      "rarity": "Ancient",
+      "total_value": 1600,
+      "items": {
+        "knives": [
+          {
+            "id": "NightmareBlade",
+            "name": "Nightmare Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "NightmareScythe",
+            "name": "Nightmare Scythe",
+            "rarity": "Ancient",
+            "trade_value": 1500,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "NightmareIron",
+            "name": "Nightmare Iron",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Matcha Boba",
+      "rarity": "Mythic",
+      "total_value": 900,
+      "items": {
+        "knives": [
+          {
+            "id": "MatchaBobaKnife",
+            "name": "Matcha Boba Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "MatchaBobaGun",
+            "name": "Matcha Boba Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "MatchaEffect",
+            "name": "Matcha",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Night Owl",
+      "rarity": "Mythic",
+      "total_value": 900,
+      "items": {
+        "knives": [
+          {
+            "id": "NightOwlKnife",
+            "name": "Night Owl Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "NightOwlGun",
+            "name": "Night Owl Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "NightOwlEffect",
+            "name": "Night Owl",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Starlight",
+      "rarity": "Mythic",
+      "total_value": 900,
+      "items": {
+        "knives": [
+          {
+            "id": "StarlightKnife",
+            "name": "Starlight Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "StarlightGun",
+            "name": "Starlight Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "StarlightEffect",
+            "name": "Starlight",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Omega",
+      "rarity": "Mythic",
+      "total_value": 750,
+      "items": {
+        "knives": [
+          {
+            "id": "OmegaScythe",
+            "name": "Omega Scythe",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "OmegaBlade",
+            "name": "Omega Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "OmegaGun",
+            "name": "Omega Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "OmegaUzi",
+            "name": "Omega Uzi",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "OmegaEffect",
+            "name": "Omega",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Phoenix",
+      "rarity": "Mythic",
+      "total_value": 650,
+      "items": {
+        "knives": [
+          {
+            "id": "PhoenixBlade",
+            "name": "Phoenix Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "PhoenixGun",
+            "name": "Phoenix Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "PhoenixEffect",
+            "name": "Phoenix",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Twilight",
+      "rarity": "Mythic",
+      "total_value": 650,
+      "items": {
+        "knives": [
+          {
+            "id": "TwilightEdge",
+            "name": "Twilight Edge",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "TwilightGun",
+            "name": "Twilight Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "TwilightEffect",
+            "name": "Twilight",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Dreamcatcher",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "DreamcatcherBlade",
+            "name": "Dreamcatcher Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DreamcatcherGun",
+            "name": "Dreamcatcher Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Duskveil",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "DuskveilDagger",
+            "name": "Duskveil Dagger",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DuskveilIron",
+            "name": "Duskveil Iron",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Eternal",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "EternalBlade",
+            "name": "Eternal Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "EternalIron",
+            "name": "Eternal Iron",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "HexaKill",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "HexaKillBlade",
+            "name": "HexaKill Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "HexaKillGun",
+            "name": "HexaKill Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Jellyfish",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "JellyfishBlade",
+            "name": "Jellyfish Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "JellyfishGun",
+            "name": "Jellyfish Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Liminal",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "LiminalEdge",
+            "name": "Liminal Edge",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "LiminalGun",
+            "name": "Liminal Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Luminous",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "LuminousKnife",
+            "name": "Luminous Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "LuminousGun",
+            "name": "Luminous Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Mythril",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "MythrilEdge",
+            "name": "Mythril Edge",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "MythrilGun",
+            "name": "Mythril Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Nova",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "NovaBlade",
+            "name": "Nova Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "NovaGun",
+            "name": "Nova Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Quantum",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "QuantumKnife",
+            "name": "Quantum Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "QuantumGun",
+            "name": "Quantum Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Rift",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "RiftKnife",
+            "name": "Rift Knife",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "RiftGun",
+            "name": "Rift Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Seraph",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "SeraphBlade",
+            "name": "Seraph Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SeraphGun",
+            "name": "Seraph Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Solar Flare",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "SolarFlare",
+            "name": "Solar Flare",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SolarFlareGun",
+            "name": "Solar Flare Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Spectral",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "SpectralBlade",
+            "name": "Spectral Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SpectralGun",
+            "name": "Spectral Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Storm",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "StormBlade",
+            "name": "Storm Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "StormCannon",
+            "name": "Storm Cannon",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Ultra Violet",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "UltraVioletBlade",
+            "name": "Ultra Violet Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "UltraVioletGun",
+            "name": "Ultra Violet Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Zenith",
+      "rarity": "Mythic",
+      "total_value": 600,
+      "items": {
+        "knives": [
+          {
+            "id": "ZenithBlade",
+            "name": "Zenith Blade",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ZenithGun",
+            "name": "Zenith Gun",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Plasma",
+      "rarity": "Mythic",
+      "total_value": 450,
+      "items": {
+        "knives": [
+          {
+            "id": "PlasmaKnife",
+            "name": "Plasma Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "PlasmaScythe",
+            "name": "Plasma Scythe",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "PlasmaGun",
+            "name": "Plasma Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "PlasmaEffect",
+            "name": "Plasma",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Void",
+      "rarity": "Mythic",
+      "total_value": 450,
+      "items": {
+        "knives": [
+          {
+            "id": "VoidBlade",
+            "name": "Void Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "VoidReaper",
+            "name": "Void Reaper",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "VoidGun",
+            "name": "Void Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "VoidEffect",
+            "name": "Void",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Inferno",
+      "rarity": "Mythic",
+      "total_value": 400,
+      "items": {
+        "knives": [
+          {
+            "id": "InfernoKnife",
+            "name": "Inferno Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "InfernoScythe",
+            "name": "Inferno Scythe",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "InfernoGun",
+            "name": "Inferno Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Midnight",
+      "rarity": "Mythic",
+      "total_value": 400,
+      "items": {
+        "knives": [
+          {
+            "id": "MidnightDagger",
+            "name": "Midnight Dagger",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "MidnightTalon",
+            "name": "Midnight Talon",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "MidnightGun",
+            "name": "Midnight Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Thunder",
+      "rarity": "Mythic",
+      "total_value": 400,
+      "items": {
+        "knives": [
+          {
+            "id": "ThunderBlade",
+            "name": "Thunder Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "ThunderScythe",
+            "name": "Thunder Scythe",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ThunderGun",
+            "name": "Thunder Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Diamond",
+      "rarity": "Mythic",
+      "total_value": 330,
+      "items": {
+        "knives": [
+          {
+            "id": "DiamondEdge",
+            "name": "Diamond Edge",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "DiamondKarambit",
+            "name": "Diamond Karambit",
+            "rarity": "Mythic",
+            "trade_value": 300,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DiamondHandgun",
+            "name": "Diamond Handgun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Glitch",
+      "rarity": "Legendary",
+      "total_value": 150,
+      "items": {
+        "knives": [
+          {
+            "id": "GlitchBlade",
+            "name": "Glitch Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GlitchGun",
+            "name": "Glitch Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "GlitchEffect",
+            "name": "Glitch",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Star",
+      "rarity": "Legendary",
+      "total_value": 150,
+      "items": {
+        "knives": [
+          {
+            "id": "StarKnife",
+            "name": "Star Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "StarGun",
+            "name": "Star Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "StarEffect",
+            "name": "Star",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Gold",
+      "rarity": "Legendary",
+      "total_value": 130,
+      "items": {
+        "knives": [
+          {
+            "id": "GoldDagger",
+            "name": "Gold Dagger",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          },
+          {
+            "id": "GoldScythe",
+            "name": "Gold Scythe",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GoldGun",
+            "name": "Gold Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "GoldCannon",
+            "name": "Gold Cannon",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Ghost",
+      "rarity": "Legendary",
+      "total_value": 102,
+      "items": {
+        "knives": [
+          {
+            "id": "GhostKnife",
+            "name": "Ghost Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GhostGun",
+            "name": "Ghost Gun",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Gun"
+          },
+          {
+            "id": "GhostCannon",
+            "name": "Ghost Cannon",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Celestial",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "CelestialBlade",
+            "name": "Celestial Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CelestialIron",
+            "name": "Celestial Iron",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Chaos",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "ChaosEdge",
+            "name": "Chaos Edge",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ChaosIron",
+            "name": "Chaos Iron",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Comet",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "CometDagger",
+            "name": "Comet Dagger",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CometGun",
+            "name": "Comet Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Flame",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "FlameDagger",
+            "name": "Flame Dagger",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "FlameCannon",
+            "name": "Flame Cannon",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Frost",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "FrostKnife",
+            "name": "Frost Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "FrostGun",
+            "name": "Frost Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Galactic",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "GalacticBlade",
+            "name": "Galactic Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GalacticGun",
+            "name": "Galactic Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Hellbound",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "HellboundBlade",
+            "name": "Hellbound Blade",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "HellboundIron",
+            "name": "Hellbound Iron",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Lovestruck",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "LovestruckKnife",
+            "name": "Lovestruck Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "LovestruckGun",
+            "name": "Lovestruck Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Nebula",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "NebulaKnife",
+            "name": "Nebula Knife",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "NebulaGun",
+            "name": "Nebula Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Prismatic",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "PrismaticEdge",
+            "name": "Prismatic Edge",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "PrismaticGun",
+            "name": "Prismatic Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Shadow",
+      "rarity": "Legendary",
+      "total_value": 100,
+      "items": {
+        "knives": [
+          {
+            "id": "ShadowDagger",
+            "name": "Shadow Dagger",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "ShadowGun",
+            "name": "Shadow Gun",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Neon",
+      "rarity": "Legendary",
+      "total_value": 80,
+      "items": {
+        "knives": [
+          {
+            "id": "NeonScythe",
+            "name": "Neon Scythe",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "NeonGun",
+            "name": "Neon Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "NeonEffect",
+            "name": "Neon",
+            "rarity": "Legendary",
+            "trade_value": 50,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Anchor",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "AnchorKnife",
+            "name": "Anchor Knife",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "AnchorGun",
+            "name": "Anchor Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Clover",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "CloverKnife",
+            "name": "Clover Knife",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CloverGun",
+            "name": "Clover Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Coral",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "Coral",
+            "name": "Coral",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CoralGun",
+            "name": "Coral Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Emerald",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "EmeraldCleaver",
+            "name": "Emerald Cleaver",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "EmeraldGun",
+            "name": "Emerald Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Jade",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "JadeKnife",
+            "name": "Jade Knife",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "JadeGun",
+            "name": "Jade Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Sapphire",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "SapphireKnife",
+            "name": "Sapphire Knife",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SapphireGun",
+            "name": "Sapphire Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Topaz",
+      "rarity": "Rare",
+      "total_value": 30,
+      "items": {
+        "knives": [
+          {
+            "id": "TopazDagger",
+            "name": "Topaz Dagger",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "TopazGun",
+            "name": "Topaz Gun",
+            "rarity": "Rare",
+            "trade_value": 15,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Bee",
+      "rarity": "Uncommon",
+      "total_value": 10,
+      "items": {
+        "knives": [
+          {
+            "id": "BeeKnife",
+            "name": "Bee Knife",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "BeeGun",
+            "name": "Bee Gun",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Cinco",
+      "rarity": "Uncommon",
+      "total_value": 10,
+      "items": {
+        "knives": [
+          {
+            "id": "CincoKnife",
+            "name": "Cinco Knife",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "CincoGun",
+            "name": "Cinco Gun",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Gingerbread",
+      "rarity": "Uncommon",
+      "total_value": 10,
+      "items": {
+        "knives": [
+          {
+            "id": "GingerbreadKnife",
+            "name": "Gingerbread Knife",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "GingerbreadGun",
+            "name": "Gingerbread Gun",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Icicle",
+      "rarity": "Uncommon",
+      "total_value": 10,
+      "items": {
+        "knives": [
+          {
+            "id": "IcicleKnife",
+            "name": "Icicle Knife",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "IcicleGun",
+            "name": "Icicle Gun",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Jester",
+      "rarity": "Uncommon",
+      "total_value": 10,
+      "items": {
+        "knives": [
+          {
+            "id": "JesterKnife",
+            "name": "Jester Knife",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "JesterGun",
+            "name": "Jester Gun",
+            "rarity": "Uncommon",
+            "trade_value": 5,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Default",
+      "rarity": "Common",
+      "total_value": 6,
+      "items": {
+        "knives": [
+          {
+            "id": "DefaultKnife",
+            "name": "Default Knife",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "DefaultGun",
+            "name": "Default Gun",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [
+          {
+            "id": "DefaultEffect",
+            "name": "Default Effect",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Effect"
+          }
+        ],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Eye",
+      "rarity": "Common",
+      "total_value": 4,
+      "items": {
+        "knives": [
+          {
+            "id": "EyeDagger",
+            "name": "Eye Dagger",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "EyeCannon",
+            "name": "Eye Cannon",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    },
+    {
+      "set_name": "Spade",
+      "rarity": "Common",
+      "total_value": 4,
+      "items": {
+        "knives": [
+          {
+            "id": "Spade",
+            "name": "Spade",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Knife"
+          }
+        ],
+        "guns": [
+          {
+            "id": "SpadeGun",
+            "name": "Spade Gun",
+            "rarity": "Common",
+            "trade_value": 2,
+            "is_base_value": true,
+            "type": "Gun"
+          }
+        ],
+        "effects": [],
+        "emotes": []
+      }
+    }
+  ]
+}
